@@ -9,16 +9,19 @@
 </head>
 
 <body>
-<div class="app-container">
 
-  <!-- HEADER -->
-  <div class="app-header">
+<!-- HEADER FIXE + CENTRÉ -->
+<div class="app-header">
+  <div class="header-inner">
     <div class="logo">
       <img src="snipers.png" alt="Logo Snipers" class="logo-img">
       <span>Gestionnaire de Tournées</span>
     </div>
     <button class="mode-toggle" id="modeToggle">Mode Admin</button>
   </div>
+</div>
+
+<div class="app-container">
 
   <div class="main-content">
 
@@ -49,6 +52,26 @@
     <div class="user-panel" id="userPanel">
       <h2>Recherche de Tournée</h2>
 
+      <!-- RÉSULTATS EN HAUT AVEC SLIDE-DOWN -->
+      <div class="result-card" id="resultCard">
+        <h4>Résultats</h4>
+        <table class="table-result">
+          <thead>
+            <tr>
+              <th>Ville</th>
+              <th>Adresse</th>
+              <th>Numéro de tournée</th>
+            </tr>
+          </thead>
+          <tbody id="resultTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- MESSAGE SI AUCUN FICHIER -->
+      <div id="noFileWarning" class="warning-box">
+        ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel en mode Admin.
+      </div>
+
       <div class="instructions">
         <p>1. Cliquez sur le micro et dites la ville (Android uniquement).</p>
         <p>2. Cliquez de nouveau et dites le dernier mot de l'adresse.</p>
@@ -63,20 +86,6 @@
         <input type="text" id="manualCity" placeholder="Ville">
         <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
         <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
-      </div>
-
-      <div class="result-card" id="resultCard">
-        <h4>Résultats</h4>
-        <table class="table-result">
-          <thead>
-            <tr>
-              <th>Ville</th>
-              <th>Adresse</th>
-              <th>Numéro de tournée</th>
-            </tr>
-          </thead>
-          <tbody id="resultTableBody"></tbody>
-        </table>
       </div>
 
     </div>

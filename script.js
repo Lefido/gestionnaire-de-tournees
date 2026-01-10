@@ -16,9 +16,7 @@ function playBeep() {
 
         oscillator.start();
         oscillator.stop(audioCtx.currentTime + 0.15);
-    } catch (e) {
-        console.log("Beep non supporté");
-    }
+    } catch (e) {}
 }
 
 /* ============================
@@ -68,6 +66,9 @@ excelInput.addEventListener("change", (e) => {
             `;
             dataTableBody.appendChild(tr);
         });
+
+        document.getElementById("noFileWarning").style.display = "none";
+        updateButtonsState();
     };
     reader.readAsBinaryString(file);
 });
@@ -83,9 +84,25 @@ const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 const voiceBtn = document.getElementById("voiceBtn");
 const statusText = document.getElementById("statusText");
 const manualInputs = document.getElementById("manualInputs");
+const manualBtn = document.getElementById("manualSearchBtn");
 
 let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
+
+/* ============================
+   GESTION DES BOUTONS
+============================ */
+function updateButtonsState() {
+    const hasFile = excelData.length > 0;
+
+    if (!isIOS) {
+        voiceBtn.disabled = !hasFile;
+        voiceBtn.style.opacity = hasFile ? "1" : "0.5";
+    }
+
+    manualBtn.disabled = !hasFile;
+    manualBtn.style.opacity = hasFile ? "1" : "0.5";
+}
 
 /* ----- MODE iPHONE ----- */
 if (isIOS) {
@@ -94,10 +111,9 @@ if (isIOS) {
     voiceBtn.disabled = true;
     voiceBtn.style.opacity = "0.5";
 } else {
+    manualInputs.style.display = "none";
     recognition = new SpeechRecognition();
     recognition.lang = "fr-FR";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
 }
 
 /* ============================
@@ -113,7 +129,6 @@ if (!isIOS) {
 
         playBeep();
 
-        // Effacer les anciens résultats
         document.getElementById("resultTableBody").innerHTML = "";
         document.getElementById("resultCard").style.display = "none";
 
@@ -155,11 +170,10 @@ if (!isIOS) {
 /* ============================
    MODE MANUEL (iPhone)
 ============================ */
-document.getElementById("manualSearchBtn").addEventListener("click", () => {
+manualBtn.addEventListener("click", () => {
     const city = document.getElementById("manualCity").value.toLowerCase();
     const addressWord = document.getElementById("manualAddress").value.toLowerCase();
 
-    // Effacer anciens résultats
     document.getElementById("resultTableBody").innerHTML = "";
     document.getElementById("resultCard").style.display = "none";
 
@@ -170,6 +184,12 @@ document.getElementById("manualSearchBtn").addEventListener("click", () => {
    RECHERCHE DANS EXCEL
 ============================ */
 function rechercherTournees(ville, motAdresse) {
+
+    if (excelData.length === 0) {
+        statusText.textContent = "Aucun fichier chargé.";
+        return;
+    }
+
     const resultCard = document.getElementById("resultCard");
     const resultTableBody = document.getElementById("resultTableBody");
 
@@ -197,5 +217,17 @@ function rechercherTournees(ville, motAdresse) {
     });
 
     resultCard.style.display = "block";
+    resultCard.style.animation = "slideDown 0.4s ease forwards";
+
     statusText.textContent = `${matches.length} résultat(s) trouvé(s).`;
 }
+
+/* ============================
+   MESSAGE SI AUCUN FICHIER
+============================ */
+window.addEventListener("load", () => {
+    if (excelData.length === 0) {
+        document.getElementById("noFileWarning").style.display = "block";
+    }
+    updateButtonsState();
+});
