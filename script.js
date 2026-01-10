@@ -28,8 +28,13 @@ const userPanel = document.getElementById("userPanel");
 
 modeToggle.addEventListener("click", () => {
     const adminVisible = adminPanel.style.display === "block";
+
+    // Bascule des panneaux
     adminPanel.style.display = adminVisible ? "none" : "block";
     userPanel.style.display = adminVisible ? "block" : "none";
+
+    // Mise à jour du texte du bouton
+    modeToggle.textContent = adminVisible ? "Mode Admin" : "Mode Utilisateur";
 });
 
 /* ============================
