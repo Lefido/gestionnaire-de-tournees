@@ -1,21 +1,18 @@
 /* ============================
-   BEEP COMPATIBLE SMARTPHONE
+   BEEP (compatible smartphone)
 ============================ */
 function playBeep() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-
-        oscillator.type = "sine";
-        oscillator.frequency.value = 900;
-        gainNode.gain.value = 0.2;
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.15);
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = 900;
+        gain.gain.value = 0.2;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
     } catch (e) {}
 }
 
@@ -36,7 +33,7 @@ modeToggle.addEventListener("click", () => {
 });
 
 /* ============================
-   IMPORT EXCEL
+   IMPORT EXCEL (VERSION FIABLE)
 ============================ */
 let excelData = [];
 
@@ -48,6 +45,7 @@ excelInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Affichage du nom du fichier
     const li = document.createElement("li");
     li.textContent = file.name;
     fileList.appendChild(li);
@@ -58,8 +56,12 @@ excelInput.addEventListener("change", (e) => {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(sheet);
 
-        excelData = excelData.concat(json);
+        excelData = json; // on remplace, pas concat
 
+        // Nettoyage du tableau Admin
+        dataTableBody.innerHTML = "";
+
+        // Affichage des lignes
         json.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -73,6 +75,7 @@ excelInput.addEventListener("change", (e) => {
         document.getElementById("noFileWarning").style.display = "none";
         updateButtonsState();
     };
+
     reader.readAsBinaryString(file);
 });
 
@@ -253,11 +256,10 @@ function rechercherTournees(ville, motAdresse) {
 }
 
 /* ============================
-   MESSAGE SI AUCUN FICHIER
+   MODE UTILISATEUR AU CHARGEMENT
 ============================ */
 window.addEventListener("load", () => {
-    if (excelData.length === 0) {
-        document.getElementById("noFileWarning").style.display = "block";
-    }
-    updateButtonsState();
+    adminPanel.style.display = "none";
+    userPanel.style.display = "block";
+    modeToggle.textContent = "Mode Admin";
 });

@@ -10,7 +10,7 @@
 
 <body>
 
-<!-- HEADER FIXE + CENTRÉ -->
+<!-- HEADER FIXE -->
 <div class="app-header">
   <div class="header-inner">
     <div class="logo">
@@ -49,10 +49,10 @@
     </div>
 
     <!-- PANEL UTILISATEUR -->
-    <div class="user-panel" id="userPanel">
+    <div class="user-panel zoom-in" id="userPanel">
       <h2>Recherche de Tournée</h2>
 
-      <!-- RÉSULTATS EN HAUT AVEC SLIDE-DOWN -->
+      <!-- RÉSULTATS -->
       <div class="result-card" id="resultCard">
         <h4>Résultats</h4>
         <table class="table-result">
@@ -67,7 +67,7 @@
         </table>
       </div>
 
-      <!-- MESSAGE SI AUCUN FICHIER -->
+      <!-- WARNING -->
       <div id="noFileWarning" class="warning-box">
         ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel en mode Admin.
       </div>
@@ -78,10 +78,11 @@
         <p>3. Sur iPhone, utilisez les champs manuels.</p>
       </div>
 
-      <button class="voice-btn" id="voiceBtn">🎤</button>
+      <!-- MICRO -->
+      <button class="voice-btn zoom-in" id="voiceBtn">🎤</button>
       <div class="status-text" id="statusText"></div>
 
-      <!-- ENCADRÉ DE CONFIRMATION VOCAL -->
+      <!-- ENCADRÉ CONFIRMATION -->
       <div id="voiceConfirmBox" class="voice-confirm-box">
         <p id="voiceConfirmText"></p>
         <div class="voice-confirm-buttons">
@@ -90,6 +91,7 @@
         </div>
       </div>
 
+      <!-- MODE MANUEL -->
       <div id="manualInputs" class="manual-inputs">
         <h4>Mode manuel (iPhone)</h4>
         <input type="text" id="manualCity" placeholder="Ville">
@@ -103,7 +105,7 @@
 
 <!-- FOOTER -->
 <footer class="app-footer">
-  Frederic Boussemart by Lefido
+  Frederic Boussemart
 </footer>
 
 <script src="script.js"></script>
