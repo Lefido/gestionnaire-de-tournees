@@ -415,33 +415,36 @@ body {
     font-size: 1.2rem;
   }
 
-  .table-result {
+  /* TABLEAUX EN CARTES (ZÉRO SCROLL) */
+  .table-result thead,
+  .table-import thead {
+    display: none;
+  }
+
+  .table-result tbody tr,
+  .table-import tbody tr {
     display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-    border-spacing: 0 6px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
   }
 
-  .table-result thead th {
-    padding: 10px;
+  .table-result tbody td,
+  .table-import tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0 !important;
     font-size: 0.9rem;
+    border: none !important;
   }
 
-  .table-result tbody td {
-    padding: 10px;
-    font-size: 0.9rem;
-  }
-
-  .table-import {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-
-  .table-import th,
-  .table-import td {
-    padding: 8px 10px !important;
-    font-size: 0.85rem;
+  .table-result tbody td::before,
+  .table-import tbody td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #007bff;
+    margin-right: 10px;
   }
 
   .manual-inputs input {

@@ -5,57 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestionnaire de Tournées</title>
   <link rel="stylesheet" href="style.css">
+  <!-- Librairie XLSX pour l'import Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 
 <body>
 
-<!-- HEADER FIXE -->
-<div class="app-header">
-  <div class="header-inner">
-    <div class="logo">
-      <img src="snipers.png" alt="Logo Snipers" class="logo-img">
-      <span>Gestionnaire de Tournées</span>
-    </div>
-    <button class="mode-toggle" id="modeToggle">Mode Admin</button>
-  </div>
-</div>
-
-<div class="app-container">
-
-  <div class="main-content">
-
-    <!-- PANEL ADMIN -->
-    <div class="admin-panel" id="adminPanel">
-      <h2>Mode Administrateur</h2>
-
-      <div class="instructions">
-        <p>Importez un fichier Excel avec les colonnes : <strong>Ville</strong>, <strong>Adresse</strong>, <strong>Numéro de tournée</strong>.</p>
+  <!-- HEADER FIXE -->
+  <div class="app-header">
+    <div class="header-inner">
+      <div class="logo">
+        <img src="snipers.png" alt="Logo Snipers" class="logo-img">
+        <span>Gestionnaire de Tournées</span>
       </div>
-
-      <input type="file" id="excelFile" accept=".xlsx, .xls">
-      <ul id="fileList" class="file-list"></ul>
-
-      <table class="table-import" id="dataTable">
-        <thead>
-          <tr>
-            <th>Ville</th>
-            <th>Adresse</th>
-            <th>Numéro de tournée</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+      <button class="mode-toggle" id="modeToggle">Mode Admin</button>
     </div>
+  </div>
 
-    <!-- PANEL UTILISATEUR -->
-    <div class="user-panel zoom-in" id="userPanel">
-      <h2>Recherche de Tournée</h2>
+  <div class="app-container">
+    <div class="main-content">
 
-      <!-- RÉSULTATS -->
-      <div class="result-card" id="resultCard">
-        <h4>Résultats</h4>
-        <table class="table-result">
+      <!-- PANEL ADMIN -->
+      <div class="admin-panel" id="adminPanel">
+        <h2>Mode Administrateur</h2>
+
+        <div class="instructions">
+          <p>
+            Importez un fichier Excel avec les colonnes :
+            <strong>Ville</strong>, <strong>Adresse</strong>, <strong>Numéro de tournée</strong>.
+          </p>
+        </div>
+
+        <input type="file" id="excelFile" accept=".xlsx, .xls">
+        <ul id="fileList" class="file-list"></ul>
+
+        <table class="table-import" id="dataTable">
           <thead>
             <tr>
               <th>Ville</th>
@@ -63,51 +47,70 @@
               <th>Numéro de tournée</th>
             </tr>
           </thead>
-          <tbody id="resultTableBody"></tbody>
+          <tbody></tbody>
         </table>
       </div>
 
-      <!-- WARNING -->
-      <div id="noFileWarning" class="warning-box">
-        ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel en mode Admin.
-      </div>
+      <!-- PANEL UTILISATEUR -->
+      <div class="user-panel zoom-in" id="userPanel">
+        <h2>Recherche de Tournée</h2>
 
-      <div class="instructions">
-        <p>1. Cliquez sur le micro et dites la ville (Android uniquement).</p>
-        <p>2. Cliquez de nouveau et dites le dernier mot de l'adresse.</p>
-        <p>3. Sur iPhone, utilisez les champs manuels.</p>
-      </div>
-
-      <!-- MICRO -->
-      <button class="voice-btn zoom-in" id="voiceBtn">🎤</button>
-      <div class="status-text" id="statusText"></div>
-
-      <!-- ENCADRÉ CONFIRMATION -->
-      <div id="voiceConfirmBox" class="voice-confirm-box">
-        <p id="voiceConfirmText"></p>
-        <div class="voice-confirm-buttons">
-          <button id="confirmBtn" class="confirm-btn">Confirmer</button>
-          <button id="retryBtn" class="retry-btn">Recommencer</button>
+        <!-- RÉSULTATS -->
+        <div class="result-card" id="resultCard">
+          <h4>Résultats</h4>
+          <table class="table-result">
+            <thead>
+              <tr>
+                <th>Ville</th>
+                <th>Adresse</th>
+                <th>Numéro de tournée</th>
+              </tr>
+            </thead>
+            <tbody id="resultTableBody"></tbody>
+          </table>
         </div>
-      </div>
 
-      <!-- MODE MANUEL -->
-      <div id="manualInputs" class="manual-inputs">
-        <h4>Mode manuel (iPhone)</h4>
-        <input type="text" id="manualCity" placeholder="Ville">
-        <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
-        <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
-      </div>
+        <!-- WARNING -->
+        <div id="noFileWarning" class="warning-box">
+          ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel en mode Admin.
+        </div>
 
+        <div class="instructions">
+          <p>1. Cliquez sur le micro et dites la ville (Android uniquement).</p>
+          <p>2. Cliquez de nouveau et dites le dernier mot de l'adresse.</p>
+          <p>3. Sur iPhone, utilisez les champs manuels.</p>
+        </div>
+
+        <!-- MICRO -->
+        <button class="voice-btn" id="voiceBtn">🎤</button>
+        <div class="status-text" id="statusText"></div>
+
+        <!-- ENCADRÉ CONFIRMATION -->
+        <div id="voiceConfirmBox" class="voice-confirm-box">
+          <p id="voiceConfirmText"></p>
+          <div class="voice-confirm-buttons">
+            <button id="confirmBtn" class="confirm-btn">Confirmer</button>
+            <button id="retryBtn" class="retry-btn">Recommencer</button>
+          </div>
+        </div>
+
+        <!-- MODE MANUEL -->
+        <div id="manualInputs" class="manual-inputs">
+          <h4>Mode manuel (iPhone)</h4>
+          <input type="text" id="manualCity" placeholder="Ville">
+          <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
+          <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
+        </div>
+
+      </div>
     </div>
   </div>
-</div>
 
-<!-- FOOTER -->
-<footer class="app-footer">
-  Frederic Boussemart
-</footer>
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    Frederic Boussemart by Lefido
+  </footer>
 
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

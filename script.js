@@ -33,7 +33,7 @@ modeToggle.addEventListener("click", () => {
 });
 
 /* ============================
-   IMPORT EXCEL (VERSION FIABLE)
+   IMPORT EXCEL
 ============================ */
 let excelData = [];
 
@@ -45,7 +45,6 @@ excelInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Affichage du nom du fichier
     const li = document.createElement("li");
     li.textContent = file.name;
     fileList.appendChild(li);
@@ -56,12 +55,10 @@ excelInput.addEventListener("change", (e) => {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(sheet);
 
-        excelData = json; // on remplace, pas concat
+        excelData = json;
 
-        // Nettoyage du tableau Admin
         dataTableBody.innerHTML = "";
 
-        // Affichage des lignes
         json.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -73,6 +70,8 @@ excelInput.addEventListener("change", (e) => {
         });
 
         document.getElementById("noFileWarning").style.display = "none";
+
+        applyMobileLabels();
         updateButtonsState();
     };
 
@@ -253,6 +252,27 @@ function rechercherTournees(ville, motAdresse) {
     resultCard.style.animation = "slideDown 0.4s ease forwards";
 
     statusText.textContent = `${matches.length} résultat(s) trouvé(s).`;
+
+    applyMobileLabels();
+}
+
+/* ============================
+   AJOUT AUTOMATIQUE DES LABELS (MOBILE)
+============================ */
+function applyMobileLabels() {
+    const tables = document.querySelectorAll("table");
+
+    tables.forEach(table => {
+        const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent.trim());
+        const rows = table.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            cells.forEach((cell, index) => {
+                cell.setAttribute("data-label", headers[index] || "");
+            });
+        });
+    });
 }
 
 /* ============================
