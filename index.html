@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire de Tournées</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+
+<body>
+<div class="app-container">
+
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="logo">
+      <img src="snipers.png" alt="Logo Snipers" class="logo-img">
+      <span>Gestionnaire de Tournées</span>
+    </div>
+    <button class="mode-toggle" id="modeToggle">Mode Admin</button>
+  </div>
+
+  <div class="main-content">
+
+    <!-- PANEL ADMIN -->
+    <div class="admin-panel" id="adminPanel">
+      <h2>Mode Administrateur</h2>
+
+      <div class="instructions">
+        <p>Importez un fichier Excel avec les colonnes : <strong>Ville</strong>, <strong>Adresse</strong>, <strong>Numéro de tournée</strong>.</p>
+      </div>
+
+      <input type="file" id="excelFile" accept=".xlsx, .xls">
+      <ul id="fileList" class="file-list"></ul>
+
+      <table class="table-import" id="dataTable">
+        <thead>
+          <tr>
+            <th>Ville</th>
+            <th>Adresse</th>
+            <th>Numéro de tournée</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- PANEL UTILISATEUR -->
+    <div class="user-panel" id="userPanel">
+      <h2>Recherche de Tournée</h2>
+
+      <div class="instructions">
+        <p>1. Cliquez sur le micro et dites la ville (Android uniquement).</p>
+        <p>2. Cliquez de nouveau et dites le dernier mot de l'adresse.</p>
+        <p>3. Sur iPhone, utilisez les champs manuels.</p>
+      </div>
+
+      <button class="voice-btn" id="voiceBtn">🎤</button>
+      <div class="status-text" id="statusText"></div>
+
+      <div id="manualInputs" class="manual-inputs">
+        <h4>Mode manuel (iPhone)</h4>
+        <input type="text" id="manualCity" placeholder="Ville">
+        <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
+        <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
+      </div>
+
+      <div class="result-card" id="resultCard">
+        <h4>Résultats</h4>
+        <table class="table-result">
+          <thead>
+            <tr>
+              <th>Ville</th>
+              <th>Adresse</th>
+              <th>Numéro de tournée</th>
+            </tr>
+          </thead>
+          <tbody id="resultTableBody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

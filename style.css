@@ -1,0 +1,189 @@
+/* ===== GLOBAL ===== */
+body {
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  margin: 0;
+}
+
+.app-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  background-color: #343a40;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.logo-img {
+  height: 70px;
+  width: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+/* ===== PANELS ===== */
+.main-content {
+  padding: 20px;
+}
+
+.admin-panel {
+  display: none;
+}
+
+.user-panel {
+  text-align: center;
+}
+
+/* ===== INSTRUCTIONS ===== */
+.instructions {
+  background-color: #f8f9fa;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+}
+
+/* ===== TABLE IMPORT ===== */
+.table-import {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table-import th, .table-import td {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.table-import th {
+  background-color: #007bff;
+  color: white;
+}
+
+/* ===== LISTE DES FICHIERS ===== */
+.file-list {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.file-list li {
+  margin-bottom: 5px;
+  font-size: 15px;
+}
+
+/* ===== MICRO ===== */
+.voice-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-size: 24px;
+  margin: 20px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.voice-btn.listening {
+  background-color: #28a745;
+  animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.6);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px 10px rgba(40, 167, 69, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.6);
+  }
+}
+
+.status-text {
+  margin-top: 10px;
+  font-size: 18px;
+  min-height: 27px;
+}
+
+/* ===== MODE MANUEL ===== */
+.manual-inputs {
+  display: none;
+  margin-top: 20px;
+}
+
+.manual-inputs input {
+  width: 80%;
+  padding: 10px;
+  margin: 5px 0;
+  border: 1px solid #bbb;
+  border-radius: 5px;
+}
+
+.manual-btn {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* ===== TABLE RÉSULTATS ===== */
+.result-card {
+  display: none;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-result {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.table-result th, .table-result td {
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  text-align: left;
+}
+
+.table-result th {
+  background-color: #007bff;
+  color: white;
+}
+
+.table-result tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
