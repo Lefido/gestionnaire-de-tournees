@@ -3,7 +3,7 @@ body {
   background-color: #f8f9fa;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  padding-top: 80px; /* espace pour le header fixe */
+  padding-top: 80px;
 }
 
 .app-container {
@@ -52,7 +52,7 @@ body {
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 0 10px rgba(255,255,255,0.4);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: 0.3s ease;
 }
 
 .logo-img:hover {
@@ -69,17 +69,12 @@ body {
   border-radius: 6px;
   cursor: pointer;
   font-size: 0.9rem;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: 0.2s ease;
 }
 
 .mode-toggle:hover {
   background-color: #0069d9;
   transform: scale(1.03);
-}
-
-/* ===== PANELS ===== */
-.main-content {
-  padding: 20px;
 }
 
 /* ===== WARNING ===== */
@@ -127,21 +122,76 @@ body {
   100% { transform: scale(1); }
 }
 
-/* ===== MODE MANUEL ===== */
-.manual-inputs {
+/* ===== ENCADRÉ DE CONFIRMATION VOCAL ===== */
+.voice-confirm-box {
   display: none;
-}
-
-/* ===== RÉSULTATS AVEC SLIDE-DOWN ===== */
-.result-card {
-  display: none;
-  background: #f1f1f1;
+  background: #ffffff;
+  border: 2px solid #007bff;
   padding: 15px;
   border-radius: 10px;
+  margin: 15px 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.voice-confirm-box p {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.voice-confirm-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.confirm-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.confirm-btn:hover {
+  background-color: #218838;
+}
+
+.retry-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.retry-btn:hover {
+  background-color: #c82333;
+}
+
+/* ===== RÉSULTATS ===== */
+.result-card {
+  display: none;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
   margin-bottom: 20px;
+  border: 2px solid #007bff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   animation: slideDown 0.4s ease forwards;
   opacity: 0;
   transform: translateY(-10px);
+}
+
+.result-card h4 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #007bff;
+  text-align: center;
 }
 
 @keyframes slideDown {
@@ -151,7 +201,6 @@ body {
   }
 }
 
-/* ===== TABLES ===== */
 .table-result, .table-import {
   width: 100%;
   border-collapse: collapse;
@@ -160,10 +209,15 @@ body {
 .table-result th, .table-result td,
 .table-import th, .table-import td {
   border: 1px solid #ccc;
-  padding: 6px 8px;
+  padding: 10px 12px;
+  font-size: 1rem;
 }
 
-.table-result th, .table-import th {
+.table-result tr:hover {
+  background-color: #eaf2ff;
+}
+
+.table-result th {
   background-color: #007bff;
   color: white;
 }

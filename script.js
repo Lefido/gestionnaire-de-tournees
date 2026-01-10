@@ -29,11 +29,9 @@ const userPanel = document.getElementById("userPanel");
 modeToggle.addEventListener("click", () => {
     const adminVisible = adminPanel.style.display === "block";
 
-    // Bascule des panneaux
     adminPanel.style.display = adminVisible ? "none" : "block";
     userPanel.style.display = adminVisible ? "block" : "none";
 
-    // Mise à jour du texte du bouton
     modeToggle.textContent = adminVisible ? "Mode Admin" : "Mode Utilisateur";
 });
 
@@ -91,6 +89,11 @@ const statusText = document.getElementById("statusText");
 const manualInputs = document.getElementById("manualInputs");
 const manualBtn = document.getElementById("manualSearchBtn");
 
+const voiceConfirmBox = document.getElementById("voiceConfirmBox");
+const voiceConfirmText = document.getElementById("voiceConfirmText");
+const confirmBtn = document.getElementById("confirmBtn");
+const retryBtn = document.getElementById("retryBtn");
+
 let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 
@@ -122,22 +125,31 @@ if (isIOS) {
 }
 
 /* ============================
-   WORKFLOW VOCAL (ANDROID)
+   WORKFLOW VOCAL AVEC CONFIRMATION
 ============================ */
 let step = 1;
 let city = "";
 let addressWord = "";
+let lastRecognized = "";
 let timeoutID = null;
 
 if (!isIOS) {
     voiceBtn.addEventListener("click", () => {
+        startListening();
+    });
 
+    function startListening() {
         playBeep();
 
-        document.getElementById("resultTableBody").innerHTML = "";
-        document.getElementById("resultCard").style.display = "none";
+        voiceConfirmBox.style.display = "none";
+        lastRecognized = "";
 
-        statusText.textContent = step === 1 ? "Dites la ville…" : "Dites le dernier mot de l'adresse…";
+        document.getElementById("resultCard").style.display = "none";
+        document.getElementById("resultTableBody").innerHTML = "";
+
+        statusText.textContent = step === 1
+            ? "Dites la ville…"
+            : "Dites le dernier mot de l'adresse…";
 
         voiceBtn.classList.add("listening");
         recognition.start();
@@ -148,27 +160,41 @@ if (!isIOS) {
             statusText.textContent = "Aucun son détecté.";
             voiceBtn.classList.remove("listening");
         }, 5000);
-    });
+    }
 
     recognition.addEventListener("result", (event) => {
         clearTimeout(timeoutID);
 
-        const text = event.results[0][0].transcript.trim();
-        statusText.textContent = "Vous avez dit : " + text;
+        lastRecognized = event.results[0][0].transcript.trim();
 
-        if (step === 1) {
-            city = text.toLowerCase();
-            step = 2;
-            statusText.textContent = "Ville détectée : " + city + ". Maintenant dites le dernier mot de l'adresse.";
-        } else {
-            addressWord = text.toLowerCase();
-            step = 1;
-            rechercherTournees(city, addressWord);
-        }
+        voiceConfirmText.textContent = "Vous avez dit : " + lastRecognized;
+        voiceConfirmBox.style.display = "block";
+
+        statusText.textContent = "Confirmez ou recommencez.";
     });
 
     recognition.addEventListener("end", () => {
         voiceBtn.classList.remove("listening");
+    });
+
+    confirmBtn.addEventListener("click", () => {
+        if (step === 1) {
+            city = lastRecognized.toLowerCase();
+            step = 2;
+            voiceConfirmBox.style.display = "none";
+            statusText.textContent = "Ville confirmée : " + city + ". Maintenant dites le dernier mot de l'adresse.";
+            startListening();
+        } else {
+            addressWord = lastRecognized.toLowerCase();
+            step = 1;
+            voiceConfirmBox.style.display = "none";
+            rechercherTournees(city, addressWord);
+        }
+    });
+
+    retryBtn.addEventListener("click", () => {
+        voiceConfirmBox.style.display = "none";
+        startListening();
     });
 }
 
@@ -207,7 +233,6 @@ function rechercherTournees(ville, motAdresse) {
 
     if (matches.length === 0) {
         statusText.textContent = "Aucune tournée trouvée.";
-        resultCard.style.display = "none";
         return;
     }
 
