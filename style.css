@@ -18,40 +18,6 @@ body {
 }
 
 /* ============================
-   RESPONSIVE SMARTPHONE
-============================ */
-@media (max-width: 600px) {
-  body {
-    padding-top: 60px; /* marge réduite mobile */
-  }
-
-  .app-container {
-    margin: 20px auto;
-    padding: 20px;
-  }
-
-  .main-content {
-    padding: 15px;
-  }
-
-  .logo-img {
-    height: 55px;
-    width: 55px;
-  }
-
-  .mode-toggle {
-    padding: 6px 10px;
-    font-size: 0.8rem;
-  }
-
-  .voice-btn {
-    width: 70px;
-    height: 70px;
-    font-size: 22px;
-  }
-}
-
-/* ============================
    HEADER
 ============================ */
 .app-header {
@@ -369,4 +335,127 @@ body {
   font-size: 0.9rem;
   margin-top: 30px;
   border-top: 2px solid rgba(255,255,255,0.1);
+}
+
+/* ============================
+   VERSION MOBILE PREMIUM
+============================ */
+@media (max-width: 600px) {
+
+  body {
+    padding-top: 60px;
+  }
+
+  .app-container {
+    margin: 10px;
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .main-content {
+    padding: 15px;
+  }
+
+  .logo-img {
+    height: 45px;
+    width: 45px;
+  }
+
+  .logo span {
+    font-size: 1.1rem;
+  }
+
+  .mode-toggle {
+    padding: 5px 10px;
+    font-size: 0.75rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .voice-btn {
+    width: 65px;
+    height: 65px;
+    font-size: 22px;
+    margin-top: 10px;
+  }
+
+  .voice-btn.listening {
+    animation: micPulse 0.7s infinite ease-in-out;
+  }
+
+  .status-text {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+
+  .voice-confirm-box {
+    padding: 12px;
+    margin: 10px 0;
+  }
+
+  .voice-confirm-box p {
+    font-size: 1rem;
+  }
+
+  .confirm-btn,
+  .retry-btn {
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  .result-card {
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .result-card h4 {
+    font-size: 1.2rem;
+  }
+
+  .table-result {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-spacing: 0 6px;
+  }
+
+  .table-result thead th {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .table-result tbody td {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+
+  .table-import {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .table-import th,
+  .table-import td {
+    padding: 8px 10px !important;
+    font-size: 0.85rem;
+  }
+
+  .manual-inputs input {
+    padding: 8px;
+    font-size: 0.9rem;
+  }
+
+  .manual-btn {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .app-footer {
+    font-size: 0.8rem;
+    padding: 10px 0;
+  }
 }
