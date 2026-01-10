@@ -167,3 +167,14 @@ body {
   background-color: #007bff;
   color: white;
 }
+
+/* ===== FOOTER ===== */
+.app-footer {
+  background-color: #2f3338;
+  color: white;
+  text-align: center;
+  padding: 12px 0;
+  font-size: 0.9rem;
+  margin-top: 30px;
+  border-top: 2px solid rgba(255,255,255,0.1);
+}
