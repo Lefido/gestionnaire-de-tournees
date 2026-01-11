@@ -1,4 +1,17 @@
 /* ============================
+   SUPPRESSION DES ACCENTS
+============================ */
+function normalizeText(str) {
+    return str
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/œ/g, "oe")
+        .replace(/æ/g, "ae")
+        .toLowerCase()
+        .trim();
+}
+
+/* ============================
    BEEP (compatible smartphone)
 ============================ */
 function playBeep() {
@@ -167,7 +180,7 @@ if (!isIOS) {
     recognition.addEventListener("result", (event) => {
         clearTimeout(timeoutID);
 
-        lastRecognized = event.results[0][0].transcript.trim();
+        lastRecognized = normalizeText(event.results[0][0].transcript);
 
         voiceConfirmText.textContent = "Vous avez dit : " + lastRecognized;
         voiceConfirmBox.style.display = "block";
@@ -181,13 +194,13 @@ if (!isIOS) {
 
     confirmBtn.addEventListener("click", () => {
         if (step === 1) {
-            city = lastRecognized.toLowerCase();
+            city = normalizeText(lastRecognized);
             step = 2;
             voiceConfirmBox.style.display = "none";
             statusText.textContent = "Ville confirmée : " + city + ". Maintenant dites le dernier mot de l'adresse.";
             startListening();
         } else {
-            addressWord = lastRecognized.toLowerCase();
+            addressWord = normalizeText(lastRecognized);
             step = 1;
             voiceConfirmBox.style.display = "none";
             rechercherTournees(city, addressWord);
@@ -204,8 +217,8 @@ if (!isIOS) {
    MODE MANUEL (iPhone)
 ============================ */
 manualBtn.addEventListener("click", () => {
-    const city = document.getElementById("manualCity").value.toLowerCase();
-    const addressWord = document.getElementById("manualAddress").value.toLowerCase();
+    const city = normalizeText(document.getElementById("manualCity").value);
+    const addressWord = normalizeText(document.getElementById("manualAddress").value);
 
     document.getElementById("resultTableBody").innerHTML = "";
     document.getElementById("resultCard").style.display = "none";
@@ -229,8 +242,8 @@ function rechercherTournees(ville, motAdresse) {
     resultTableBody.innerHTML = "";
 
     const matches = excelData.filter(row =>
-        (row.Ville || "").toLowerCase() === ville &&
-        (row.Adresse || "").toLowerCase().includes(motAdresse)
+        normalizeText(row.Ville || "") === normalizeText(ville) &&
+        normalizeText(row.Adresse || "").includes(normalizeText(motAdresse))
     );
 
     if (matches.length === 0) {
