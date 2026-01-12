@@ -1,14 +1,15 @@
 /* ============================
-   SUPPRESSION DES ACCENTS
+   SUPPRESSION DES ACCENTS + NETTOYAGE
 ============================ */
 function normalizeText(str) {
-    return str
+    return String(str || "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/œ/g, "oe")
         .replace(/æ/g, "ae")
-        .toLowerCase()
-        .trim();
+        .replace(/\s+/g, " ")       // supprime espaces multiples
+        .trim()
+        .toLowerCase();
 }
 
 /* ============================
@@ -46,7 +47,7 @@ modeToggle.addEventListener("click", () => {
 });
 
 /* ============================
-   IMPORT EXCEL
+   IMPORT EXCEL + NETTOYAGE
 ============================ */
 let excelData = [];
 
@@ -68,6 +69,13 @@ excelInput.addEventListener("change", (e) => {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(sheet);
 
+        /* Nettoyage automatique */
+        json.forEach(row => {
+            row.Ville = normalizeText(row.Ville);
+            row.Adresse = normalizeText(row.Adresse);
+            row["Numéro de tournée"] = String(row["Numéro de tournée"] || "").trim();
+        });
+
         excelData = json;
 
         dataTableBody.innerHTML = "";
@@ -75,9 +83,9 @@ excelInput.addEventListener("change", (e) => {
         json.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
-                <td>${row.Ville || ""}</td>
-                <td>${row.Adresse || ""}</td>
-                <td>${row["Numéro de tournée"] || ""}</td>
+                <td>${row.Ville}</td>
+                <td>${row.Adresse}</td>
+                <td>${row["Numéro de tournée"]}</td>
             `;
             dataTableBody.appendChild(tr);
         });
@@ -242,8 +250,8 @@ function rechercherTournees(ville, motAdresse) {
     resultTableBody.innerHTML = "";
 
     const matches = excelData.filter(row =>
-        normalizeText(row.Ville || "") === normalizeText(ville) &&
-        normalizeText(row.Adresse || "").includes(normalizeText(motAdresse))
+        row.Ville === normalizeText(ville) &&
+        row.Adresse.includes(normalizeText(motAdresse))
     );
 
     if (matches.length === 0) {
