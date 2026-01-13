@@ -38,11 +38,12 @@ modeToggle.addEventListener("click", () => {
 });
 
 let excelData = [];
+let selectedCity = "";
 
 const excelInput = document.getElementById("excelFile");
 const fileList = document.getElementById("fileList");
 const dataTableBody = document.querySelector("#dataTable tbody");
-const citySelect = document.getElementById("citySelect");
+const cityBtnContainer = document.getElementById("cityBtnContainer");
 
 excelInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
@@ -70,12 +71,21 @@ excelInput.addEventListener("change", (e) => {
         villesUniques = villesUniques.filter(v => v.trim() !== "");
         villesUniques.sort();
 
-        citySelect.innerHTML = `<option value="">-- Choisir une ville --</option>`;
+        cityBtnContainer.innerHTML = "";
+
         villesUniques.forEach(v => {
-            const opt = document.createElement("option");
-            opt.value = v;
-            opt.textContent = v.charAt(0).toUpperCase() + v.slice(1);
-            citySelect.appendChild(opt);
+            const btn = document.createElement("button");
+            btn.classList.add("city-btn");
+            btn.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+            btn.dataset.value = v;
+
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".city-btn").forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                selectedCity = v;
+            });
+
+            cityBtnContainer.appendChild(btn);
         });
 
         dataTableBody.innerHTML = "";
@@ -186,7 +196,7 @@ if (!isIOS) {
     confirmBtn.addEventListener("click", () => {
         addressWord = normalizeText(lastRecognized);
         voiceConfirmBox.style.display = "none";
-        rechercherTournees(citySelect.value, addressWord);
+        rechercherTournees(selectedCity, addressWord);
     });
 
     retryBtn.addEventListener("click", () => {
@@ -196,7 +206,7 @@ if (!isIOS) {
 }
 
 manualBtn.addEventListener("click", () => {
-    const city = normalizeText(citySelect.value);
+    const city = normalizeText(selectedCity);
     const addressWord = normalizeText(document.getElementById("manualAddress").value);
 
     document.getElementById("resultTableBody").innerHTML = "";

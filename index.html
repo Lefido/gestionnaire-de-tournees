@@ -6,44 +6,22 @@
   <title>Gestionnaire de Tournées</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-  <style>
-    /* Animation premium du select */
-    .premium-select select {
-      padding: 10px;
-      border-radius: 8px;
-      border: 2px solid #444;
-      background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
-      color: white;
-      font-size: 1rem;
-      transition: 0.25s ease;
-      box-shadow: 0 0 8px rgba(255,255,255,0.15);
-    }
-
-    .premium-select select:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 12px rgba(255,255,255,0.25);
-      border-color: #888;
-    }
-
-    .premium-select select:focus {
-      transform: scale(1.05);
-      border-color: #00c3ff;
-      box-shadow: 0 0 15px rgba(0,195,255,0.6);
-      outline: none;
-    }
-  </style>
 </head>
 
 <body>
 
+  <!-- HEADER -->
   <div class="app-header">
     <div class="header-inner">
+
       <div class="logo">
         <img src="snipers.png" alt="Logo Snipers" class="logo-img">
-        <span>Gestionnaire de Tournées</span>
       </div>
+
+      <span class="site-title">Gestionnaire de Tournées</span>
+
       <button class="mode-toggle" id="modeToggle">Paramètres</button>
+
     </div>
   </div>
 
@@ -74,15 +52,33 @@
       </div>
 
       <!-- PANEL ACCUEIL -->
-      <div class="user-panel zoom-in" id="userPanel">
+      <div class="user-panel" id="userPanel">
         <h2>Accueil</h2>
 
-        <!-- SELECTEUR DE VILLE -->
-        <div class="city-selector premium-select">
-          <label for="citySelect">Ville :</label>
-          <select id="citySelect">
-            <option value="">-- Choisir une ville --</option>
-          </select>
+        <!-- BOUTONS DE VILLE -->
+        <div class="city-buttons" id="cityButtons">
+          <h4>Choisissez une ville :</h4>
+          <div class="city-btn-container" id="cityBtnContainer"></div>
+        </div>
+
+        <!-- MICRO -->
+        <button class="voice-btn" id="voiceBtn">🎤</button>
+        <div class="status-text" id="statusText"></div>
+
+        <!-- CONFIRMATION VOCALE -->
+        <div id="voiceConfirmBox" class="voice-confirm-box">
+          <p id="voiceConfirmText"></p>
+          <div class="voice-confirm-buttons">
+            <button id="confirmBtn" class="confirm-btn">Confirmer</button>
+            <button id="retryBtn" class="retry-btn">Recommencer</button>
+          </div>
+        </div>
+
+        <!-- MODE MANUEL -->
+        <div id="manualInputs" class="manual-inputs">
+          <h4>Mode manuel (iPhone)</h4>
+          <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
+          <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
         </div>
 
         <!-- RÉSULTATS -->
@@ -102,30 +98,6 @@
 
         <div id="noFileWarning" class="warning-box">
           ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel dans Paramètres.
-        </div>
-
-        <div class="instructions">
-          <p>1. Sélectionnez une ville ou utilisez le micro (Android).</p>
-          <p>2. Dites le dernier mot de l'adresse.</p>
-          <p>3. Sur iPhone, utilisez les champs manuels.</p>
-        </div>
-
-        <button class="voice-btn" id="voiceBtn">🎤</button>
-        <div class="status-text" id="statusText"></div>
-
-        <div id="voiceConfirmBox" class="voice-confirm-box">
-          <p id="voiceConfirmText"></p>
-          <div class="voice-confirm-buttons">
-            <button id="confirmBtn" class="confirm-btn">Confirmer</button>
-            <button id="retryBtn" class="retry-btn">Recommencer</button>
-          </div>
-        </div>
-
-        <!-- MODE MANUEL -->
-        <div id="manualInputs" class="manual-inputs">
-          <h4>Mode manuel (iPhone)</h4>
-          <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
-          <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
         </div>
 
       </div>
