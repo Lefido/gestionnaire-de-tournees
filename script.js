@@ -1,3 +1,4 @@
+// Normalisation des textes (accents, espaces, minuscules)
 function normalizeText(str) {
     return String(str || "")
         .normalize("NFD")
@@ -9,6 +10,7 @@ function normalizeText(str) {
         .toLowerCase();
 }
 
+// Petit bip au démarrage de l'écoute
 function playBeep() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -24,10 +26,37 @@ function playBeep() {
     } catch (e) {}
 }
 
+// Sélecteurs principaux
 const modeToggle = document.getElementById("modeToggle");
 const adminPanel = document.getElementById("adminPanel");
 const userPanel = document.getElementById("userPanel");
 
+const excelInput = document.getElementById("excelFile");
+const fileList = document.getElementById("fileList");
+const dataTableBody = document.querySelector("#dataTable tbody");
+const cityBtnContainer = document.getElementById("cityBtnContainer");
+
+const voiceBtn = document.getElementById("voiceBtn");
+const statusText = document.getElementById("statusText");
+const manualInputs = document.getElementById("manualInputs");
+const manualBtn = document.getElementById("manualSearchBtn");
+const noFileWarning = document.getElementById("noFileWarning");
+
+const voiceConfirmBox = document.getElementById("voiceConfirmBox");
+const voiceConfirmText = document.getElementById("voiceConfirmText");
+const confirmBtn = document.getElementById("confirmBtn");
+const retryBtn = document.getElementById("retryBtn");
+
+// Popup
+const popupOverlay = document.getElementById("popupOverlay");
+const popupContent = document.getElementById("popupContent");
+const popupClose = document.getElementById("popupClose");
+
+// Données Excel
+let excelData = [];
+let selectedCity = "";
+
+// Bascule Paramètres / Accueil
 modeToggle.addEventListener("click", () => {
     const settingsVisible = adminPanel.style.display === "block";
 
@@ -37,18 +66,13 @@ modeToggle.addEventListener("click", () => {
     modeToggle.textContent = settingsVisible ? "Paramètres" : "Accueil";
 });
 
-let excelData = [];
-let selectedCity = "";
-
-const excelInput = document.getElementById("excelFile");
-const fileList = document.getElementById("fileList");
-const dataTableBody = document.querySelector("#dataTable tbody");
-const cityBtnContainer = document.getElementById("cityBtnContainer");
-
+// Chargement du fichier Excel
 excelInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Affiche le nom du fichier
+    fileList.innerHTML = "";
     const li = document.createElement("li");
     li.textContent = file.name;
     fileList.appendChild(li);
@@ -59,6 +83,7 @@ excelInput.addEventListener("change", (e) => {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(sheet);
 
+        // Normalisation des données
         json.forEach(row => {
             row.Ville = normalizeText(row.Ville);
             row.Adresse = normalizeText(row.Adresse);
@@ -67,6 +92,7 @@ excelInput.addEventListener("change", (e) => {
 
         excelData = json;
 
+        // Boutons de ville
         let villesUniques = [...new Set(json.map(row => row.Ville))];
         villesUniques = villesUniques.filter(v => v.trim() !== "");
         villesUniques.sort();
@@ -88,8 +114,8 @@ excelInput.addEventListener("change", (e) => {
             cityBtnContainer.appendChild(btn);
         });
 
+        // Table d’aperçu dans Paramètres
         dataTableBody.innerHTML = "";
-
         json.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -100,7 +126,7 @@ excelInput.addEventListener("change", (e) => {
             dataTableBody.appendChild(tr);
         });
 
-        document.getElementById("noFileWarning").style.display = "none";
+        noFileWarning.style.display = "none";
 
         applyMobileLabels();
         updateButtonsState();
@@ -109,21 +135,14 @@ excelInput.addEventListener("change", (e) => {
     reader.readAsBinaryString(file);
 });
 
+// Détection iOS
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-const voiceBtn = document.getElementById("voiceBtn");
-const statusText = document.getElementById("statusText");
-const manualInputs = document.getElementById("manualInputs");
-const manualBtn = document.getElementById("manualSearchBtn");
-
-const voiceConfirmBox = document.getElementById("voiceConfirmBox");
-const voiceConfirmText = document.getElementById("voiceConfirmText");
-const confirmBtn = document.getElementById("confirmBtn");
-const retryBtn = document.getElementById("retryBtn");
-
+// Reconnaissance vocale
 let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 
+// État des boutons selon fichier chargé
 function updateButtonsState() {
     const hasFile = excelData.length > 0;
 
@@ -136,6 +155,7 @@ function updateButtonsState() {
     manualBtn.style.opacity = hasFile ? "1" : "0.5";
 }
 
+// Configuration iOS / non-iOS
 if (isIOS) {
     statusText.textContent = "Reconnaissance vocale non supportée sur iPhone. Utilisez le mode manuel.";
     manualInputs.style.display = "block";
@@ -151,6 +171,7 @@ let addressWord = "";
 let lastRecognized = "";
 let timeoutID = null;
 
+// Logique vocale (non iOS)
 if (!isIOS) {
     voiceBtn.addEventListener("click", () => {
         startListening();
@@ -161,9 +182,6 @@ if (!isIOS) {
 
         voiceConfirmBox.style.display = "none";
         lastRecognized = "";
-
-        document.getElementById("resultCard").style.display = "none";
-        document.getElementById("resultTableBody").innerHTML = "";
 
         statusText.textContent = "Dites le dernier mot de l'adresse…";
 
@@ -205,18 +223,16 @@ if (!isIOS) {
     });
 }
 
+// Mode manuel
 manualBtn.addEventListener("click", () => {
     const city = normalizeText(selectedCity);
-    const addressWord = normalizeText(document.getElementById("manualAddress").value);
+    const addrWord = normalizeText(document.getElementById("manualAddress").value);
 
-    document.getElementById("resultTableBody").innerHTML = "";
-    document.getElementById("resultCard").style.display = "none";
-
-    rechercherTournees(city, addressWord);
+    rechercherTournees(city, addrWord);
 });
 
+// Recherche de tournées et affichage dans le popup
 function rechercherTournees(ville, motAdresse) {
-
     if (!ville || ville.trim() === "") {
         statusText.textContent = "Veuillez sélectionner une ville.";
         return;
@@ -227,10 +243,10 @@ function rechercherTournees(ville, motAdresse) {
         return;
     }
 
-    const resultCard = document.getElementById("resultCard");
-    const resultTableBody = document.getElementById("resultTableBody");
-
-    resultTableBody.innerHTML = "";
+    if (!motAdresse || motAdresse.trim() === "") {
+        statusText.textContent = "Dites ou saisissez le dernier mot de l'adresse.";
+        return;
+    }
 
     const matches = excelData.filter(row =>
         row.Ville === normalizeText(ville) &&
@@ -239,27 +255,44 @@ function rechercherTournees(ville, motAdresse) {
 
     if (matches.length === 0) {
         statusText.textContent = "Aucune tournée trouvée.";
+        popupOverlay.style.display = "none";
         return;
     }
 
+    // Construction du tableau HTML pour le popup
+    let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>Ville</th>
+          <th>Adresse</th>
+          <th>Numéro</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+
     matches.forEach(m => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${m.Ville}</td>
-            <td>${m.Adresse}</td>
-            <td>${m["Numéro de tournée"]}</td>
+        html += `
+        <tr>
+          <td>${m.Ville}</td>
+          <td>${m.Adresse}</td>
+          <td>${m["Numéro de tournée"]}</td>
+        </tr>
         `;
-        resultTableBody.appendChild(tr);
     });
 
-    resultCard.style.display = "block";
-    resultCard.style.animation = "slideDown 0.4s ease forwards";
+    html += "</tbody></table>";
+
+    popupContent.innerHTML = html;
+    popupOverlay.style.display = "flex";
 
     statusText.textContent = `${matches.length} résultat(s) trouvé(s).`;
 
     applyMobileLabels();
 }
 
+// Labels responsives pour les tableaux
 function applyMobileLabels() {
     const tables = document.querySelectorAll("table");
 
@@ -276,8 +309,22 @@ function applyMobileLabels() {
     });
 }
 
+// Fermeture du popup
+popupClose.addEventListener("click", () => {
+    popupOverlay.style.display = "none";
+});
+
+// Fermer le popup en cliquant sur le fond assombri
+popupOverlay.addEventListener("click", (e) => {
+    if (e.target === popupOverlay) {
+        popupOverlay.style.display = "none";
+    }
+});
+
+// État initial
 window.addEventListener("load", () => {
     adminPanel.style.display = "none";
     userPanel.style.display = "block";
     modeToggle.textContent = "Paramètres";
+    updateButtonsState();
 });

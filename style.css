@@ -42,8 +42,8 @@ html, body {
 }
 
 .logo-img {
-  width: 50px;
-  height: 50px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -189,22 +189,56 @@ th, td {
   color: #f2f2f2;
 }
 
-.result-card {
+/* POPUP */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.75);
   display: none;
-  background: #1b1b1b;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 15px;
-  box-shadow: 0 0 10px black;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
 }
 
-.warning-box {
-  background: #661111;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 15px;
+.popup-window {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 12px;
+  width: 85%;
+  max-width: 400px;
+  box-shadow: 0 0 20px black;
   text-align: center;
-  color: #f2f2f2;
+  color: white;
+  animation: popupFade 0.25s ease-out;
+}
+
+@keyframes popupFade {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.popup-window table {
+  width: 100%;
+  margin-top: 10px;
+  border-collapse: collapse;
+}
+
+.popup-window th, .popup-window td {
+  padding: 6px;
+  border-bottom: 1px solid #333;
+}
+
+.popup-close {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: #0077ff;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
 }
 
 /* FOOTER COLLÉ EN BAS */

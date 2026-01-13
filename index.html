@@ -81,26 +81,21 @@
           <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
         </div>
 
-        <!-- RÉSULTATS -->
-        <div class="result-card" id="resultCard">
-          <h4>Résultats</h4>
-          <table class="table-result">
-            <thead>
-              <tr>
-                <th>Ville</th>
-                <th>Adresse</th>
-                <th>Numéro de tournée</th>
-              </tr>
-            </thead>
-            <tbody id="resultTableBody"></tbody>
-          </table>
-        </div>
-
+        <!-- RÉSULTATS (désormais remplacé par popup) -->
         <div id="noFileWarning" class="warning-box">
           ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel dans Paramètres.
         </div>
 
       </div>
+    </div>
+  </div>
+
+  <!-- POPUP RÉSULTATS -->
+  <div id="popupOverlay" class="popup-overlay">
+    <div class="popup-window">
+      <h3>Résultats trouvés</h3>
+      <div id="popupContent"></div>
+      <button id="popupClose" class="popup-close">Fermer</button>
     </div>
   </div>
 
