@@ -31,6 +31,13 @@ function playBeep() {
 }
 
 /* ---------------------------------------------------------
+   VIBRATION (AJOUT)
+--------------------------------------------------------- */
+function vibrate(ms) {
+    navigator.vibrate?.(ms);
+}
+
+/* ---------------------------------------------------------
    VARIABLES GLOBALES
 --------------------------------------------------------- */
 let excelData = [];
@@ -150,19 +157,16 @@ function cleanPhraseToKeyWord(phrase) {
 }
 
 /* ---------------------------------------------------------
-   TROUVER LE MOT LE PLUS PROBABLE (AVEC RÈGLE MOTS COURTS)
+   TROUVER LE MOT LE PLUS PROBABLE
 --------------------------------------------------------- */
 function getBestAddressWord(inputWord) {
     if (!inputWord || addressWords.length === 0) return null;
 
     const input = normalizeText(inputWord);
 
-    /* 🔥 RÈGLE SPÉCIALE : mots très courts */
     if (input.length <= 3) {
-        if (addressWords.includes(input)) {
-            return input; // mot court valide
-        }
-        return null; // mot court parasite ou mal reconnu
+        if (addressWords.includes(input)) return input;
+        return null;
     }
 
     const inputSoundex = soundexFr(input);
@@ -269,6 +273,7 @@ excelInput.addEventListener("change", (e) => {
             btn.dataset.value = v;
 
             btn.addEventListener("click", () => {
+                vibrate(50); // 🔥 AJOUT
                 document.querySelectorAll(".city-btn").forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
                 selectedCity = v;
@@ -340,6 +345,7 @@ let timeoutID = null;
 
 if (!isIOS) {
     voiceBtn.addEventListener("click", () => {
+        vibrate(60); // 🔥 AJOUT
         startListening();
     });
 
@@ -401,7 +407,7 @@ if (!isIOS) {
 }
 
 /* ---------------------------------------------------------
-   MODE MANUEL (AVEC INTELLIGENCE)
+   MODE MANUEL
 --------------------------------------------------------- */
 manualBtn.addEventListener("click", () => {
     const city = normalizeText(selectedCity);
