@@ -1,107 +1,113 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestionnaire de Tournées</title>
-  <link rel="icon" type="image/png" href="snipers.png"> <link rel="apple-touch-icon" href="snipers.png">
-  <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="snipers.png">
+    <title>Assistant Tournées</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <!-- HEADER -->
-  <div class="app-header">
-    <div class="header-inner">
+<div class="app-container">
 
-      <div class="logo">
-        <img src="snipers.png" alt="Logo Snipers" class="logo-img">
-      </div>
+    <!-- HEADER -->
+    <header class="app-header">
+        <div class="header-inner">
 
-      <span class="site-title">Gestionnaire de Tournées</span>
+            <div class="logo">
+                <img src="snipers.png" class="logo-img" alt="Snipers">
+            </div>
 
-      <button class="mode-toggle" id="modeToggle">Paramètres</button>
+            <div class="site-title">Assistant Tournées</div>
 
+            <button id="modeToggle" class="mode-toggle">Paramètres</button>
+
+        </div>
+    </header>
+
+    <!-- CONTENU PRINCIPAL -->
+    <main class="main-content">
+
+        <!-- PANEL UTILISATEUR -->
+        <section id="userPanel">
+
+            <h2 style="text-align:center;">Sélectionnez une ville</h2>
+
+            <div class="city-buttons">
+                <div id="cityBtnContainer" class="city-btn-container"></div>
+            </div>
+
+            <button id="voiceBtn" class="voice-btn">🎤</button>
+
+            <div id="statusText" class="status-text">Dites le dernier mot de l'adresse…</div>
+
+            <!-- CONFIRMATION VOCALE -->
+            <div id="voiceConfirmBox" class="voice-confirm-box">
+                <div id="voiceConfirmText"></div>
+                <button id="confirmBtn" class="confirm-btn">Confirmer</button>
+                <button id="retryBtn" class="retry-btn">Recommencer</button>
+            </div>
+
+            <!-- MODE MANUEL -->
+            <div id="manualInputs" class="manual-inputs" style="display:none;">
+                <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
+                <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
+            </div>
+
+            <div id="noFileWarning" style="text-align:center; margin-top:10px; color:#ff4444;">
+                Aucun fichier chargé.
+            </div>
+
+        </section>
+
+        <!-- PANEL PARAMÈTRES -->
+        <section id="adminPanel" style="display:none;">
+
+            <h2 style="text-align:center;">Importer un fichier Excel</h2>
+
+            <!-- BOUTON FICHIER STYLÉ -->
+            <label for="excelFile" class="file-btn">Choisir un fichier</label>
+            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;">
+
+            <ul id="fileList" style="margin-top:10px;"></ul>
+
+            <h3 style="margin-top:20px;">Aperçu du fichier</h3>
+
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>Ville</th>
+                        <th>Adresse</th>
+                        <th>Numéro</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+        </section>
+
+    </main>
+
+    <!-- POPUP RÉSULTATS -->
+    <div id="popupOverlay" class="popup-overlay">
+        <div class="popup-window">
+            <h3>Résultats trouvés</h3>
+            <div id="popupContent"></div>
+            <button id="popupClose" class="popup-close">Fermer</button>
+        </div>
     </div>
-  </div>
 
-  <div class="app-container">
-    <div class="main-content">
+    <!-- FOOTER -->
+    <footer class="app-footer">
+        Frederic Boussemart by @Lefido
+    </footer>
 
-      <!-- PANEL PARAMÈTRES -->
-      <div class="admin-panel" id="adminPanel">
-        <h2>Paramètres</h2>
+</div>
 
-        <div class="instructions">
-          <p>Importez un fichier Excel avec les colonnes : <strong>Ville</strong>, <strong>Adresse</strong>, <strong>Numéro de tournée</strong>.</p>
-        </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="script.js"></script>
 
-        <input type="file" id="excelFile" accept=".xlsx, .xls">
-        <ul id="fileList" class="file-list"></ul>
-
-        <table class="table-import" id="dataTable">
-          <thead>
-            <tr>
-              <th>Ville</th>
-              <th>Adresse</th>
-              <th>Numéro de tournée</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-
-      <!-- PANEL ACCUEIL -->
-      <div class="user-panel" id="userPanel">
-        <h2>Accueil</h2>
-
-        <!-- BOUTONS DE VILLE -->
-        <div class="city-buttons" id="cityButtons">
-          <h4>Choisissez une ville :</h4>
-          <div class="city-btn-container" id="cityBtnContainer"></div>
-        </div>
-
-        <!-- MICRO -->
-        <button class="voice-btn" id="voiceBtn">🎤</button>
-        <div class="status-text" id="statusText"></div>
-
-        <!-- CONFIRMATION VOCALE -->
-        <div id="voiceConfirmBox" class="voice-confirm-box">
-          <p id="voiceConfirmText"></p>
-          <div class="voice-confirm-buttons">
-            <button id="confirmBtn" class="confirm-btn">Confirmer</button>
-            <button id="retryBtn" class="retry-btn">Recommencer</button>
-          </div>
-        </div>
-
-        <!-- MODE MANUEL -->
-        <div id="manualInputs" class="manual-inputs">
-          <h4>Mode manuel (iPhone)</h4>
-          <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
-          <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
-        </div>
-
-        <!-- RÉSULTATS (désormais remplacé par popup) -->
-        <div id="noFileWarning" class="warning-box">
-          ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel dans Paramètres.
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <!-- POPUP RÉSULTATS -->
-  <div id="popupOverlay" class="popup-overlay">
-    <div class="popup-window">
-      <h3>Résultats trouvés</h3>
-      <div id="popupContent"></div>
-      <button id="popupClose" class="popup-close">Fermer</button>
-    </div>
-  </div>
-
-  <footer class="app-footer">Frederic Boussemart by Lefido</footer>
-
-  <script src="script.js"></script>
 </body>
 </html>

@@ -37,10 +37,6 @@ html, body {
   align-items: center;
 }
 
-.logo {
-  justify-self: start;
-}
-
 .logo-img {
   width: 42px;
   height: 42px;
@@ -65,6 +61,33 @@ html, body {
   color: white;
   cursor: pointer;
   font-size: 0.95rem;
+  transition: 0.25s ease;
+}
+
+.mode-toggle:hover {
+  background: #0090ff;
+  transform: scale(1.03);
+}
+
+/* BOUTON FICHIER STYLÉ */
+.file-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: #0077ff;
+  color: white;
+  cursor: pointer;
+  font-size: 0.95rem;
+  text-align: center;
+  transition: 0.25s ease;
+  margin-top: 10px;
+}
+
+.file-btn:hover {
+  background: #0090ff;
+  box-shadow: 0 0 10px rgba(0,150,255,0.5);
+  transform: scale(1.03);
 }
 
 /* BOUTONS DE VILLE */
@@ -111,12 +134,21 @@ html, body {
   background: #0077ff;
   color: white;
   cursor: pointer;
-  transition: 0.2s ease;
+  transition: 0.25s ease;
 }
 
+/* 🔥 MICRO EN ÉCOUTE : VERT + ZOOM + PULSATION */
 .voice-btn.listening {
-  background: #00c3ff;
-  box-shadow: 0 0 15px #00c3ff;
+  background: #00cc44;
+  transform: scale(1.25);
+  box-shadow: 0 0 18px #00ff66;
+  animation: pulseMic 0.9s infinite ease-in-out;
+}
+
+@keyframes pulseMic {
+  0%   { transform: scale(1.20); }
+  50%  { transform: scale(1.32); }
+  100% { transform: scale(1.20); }
 }
 
 .status-text {
@@ -220,6 +252,12 @@ th, td {
   to   { transform: scale(1); opacity: 1; }
 }
 
+/* 🔠 RÉSULTATS EN MAJUSCULES */
+.popup-window table td,
+.popup-window table th {
+  text-transform: uppercase;
+}
+
 .popup-window table {
   width: 100%;
   margin-top: 10px;
@@ -241,7 +279,7 @@ th, td {
   cursor: pointer;
 }
 
-/* FOOTER COLLÉ EN BAS */
+/* FOOTER */
 .app-footer {
   text-align: center;
   padding: 20px;
@@ -250,17 +288,12 @@ th, td {
   color: #f2f2f2;
 }
 
-/* OPTIMISATION SMARTPHONE */
+/* RESPONSIVE SMARTPHONE */
 @media (max-width: 600px) {
 
   h2 {
     font-size: 1.2rem;
     margin-bottom: 5px;
-  }
-
-  .instructions {
-    font-size: 0.8rem;
-    margin-top: 5px;
   }
 
   .voice-btn {
