@@ -5,35 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestionnaire de Tournées</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Librairie XLSX pour l'import Excel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <style>
+    /* Animation premium du select */
+    .premium-select select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 2px solid #444;
+      background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+      color: white;
+      font-size: 1rem;
+      transition: 0.25s ease;
+      box-shadow: 0 0 8px rgba(255,255,255,0.15);
+    }
+
+    .premium-select select:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 12px rgba(255,255,255,0.25);
+      border-color: #888;
+    }
+
+    .premium-select select:focus {
+      transform: scale(1.05);
+      border-color: #00c3ff;
+      box-shadow: 0 0 15px rgba(0,195,255,0.6);
+      outline: none;
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- HEADER FIXE -->
   <div class="app-header">
     <div class="header-inner">
       <div class="logo">
         <img src="snipers.png" alt="Logo Snipers" class="logo-img">
         <span>Gestionnaire de Tournées</span>
       </div>
-      <button class="mode-toggle" id="modeToggle">Mode Admin</button>
+      <button class="mode-toggle" id="modeToggle">Paramètres</button>
     </div>
   </div>
 
   <div class="app-container">
     <div class="main-content">
 
-      <!-- PANEL ADMIN -->
+      <!-- PANEL PARAMÈTRES -->
       <div class="admin-panel" id="adminPanel">
-        <h2>Mode Administrateur</h2>
+        <h2>Paramètres</h2>
 
         <div class="instructions">
-          <p>
-            Importez un fichier Excel avec les colonnes :
-            <strong>Ville</strong>, <strong>Adresse</strong>, <strong>Numéro de tournée</strong>.
-          </p>
+          <p>Importez un fichier Excel avec les colonnes : <strong>Ville</strong>, <strong>Adresse</strong>, <strong>Numéro de tournée</strong>.</p>
         </div>
 
         <input type="file" id="excelFile" accept=".xlsx, .xls">
@@ -51,9 +73,17 @@
         </table>
       </div>
 
-      <!-- PANEL UTILISATEUR -->
+      <!-- PANEL ACCUEIL -->
       <div class="user-panel zoom-in" id="userPanel">
-        <h2>Recherche de Tournée</h2>
+        <h2>Accueil</h2>
+
+        <!-- SELECTEUR DE VILLE -->
+        <div class="city-selector premium-select">
+          <label for="citySelect">Ville :</label>
+          <select id="citySelect">
+            <option value="">-- Choisir une ville --</option>
+          </select>
+        </div>
 
         <!-- RÉSULTATS -->
         <div class="result-card" id="resultCard">
@@ -70,22 +100,19 @@
           </table>
         </div>
 
-        <!-- WARNING -->
         <div id="noFileWarning" class="warning-box">
-          ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel en mode Admin.
+          ⚠️ Aucun fichier n’a été chargé. Importez un fichier Excel dans Paramètres.
         </div>
 
         <div class="instructions">
-          <p>1. Cliquez sur le micro et dites la ville (Android uniquement).</p>
-          <p>2. Cliquez de nouveau et dites le dernier mot de l'adresse.</p>
+          <p>1. Sélectionnez une ville ou utilisez le micro (Android).</p>
+          <p>2. Dites le dernier mot de l'adresse.</p>
           <p>3. Sur iPhone, utilisez les champs manuels.</p>
         </div>
 
-        <!-- MICRO -->
         <button class="voice-btn" id="voiceBtn">🎤</button>
         <div class="status-text" id="statusText"></div>
 
-        <!-- ENCADRÉ CONFIRMATION -->
         <div id="voiceConfirmBox" class="voice-confirm-box">
           <p id="voiceConfirmText"></p>
           <div class="voice-confirm-buttons">
@@ -97,7 +124,6 @@
         <!-- MODE MANUEL -->
         <div id="manualInputs" class="manual-inputs">
           <h4>Mode manuel (iPhone)</h4>
-          <input type="text" id="manualCity" placeholder="Ville">
           <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
           <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
         </div>
@@ -106,10 +132,7 @@
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="app-footer">
-    Frederic Boussemart by Lefido
-  </footer>
+  <footer class="app-footer">Frederic Boussemart by Lefido</footer>
 
   <script src="script.js"></script>
 </body>

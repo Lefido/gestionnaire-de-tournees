@@ -1,20 +1,14 @@
-/* ============================
-   SUPPRESSION DES ACCENTS + NETTOYAGE
-============================ */
 function normalizeText(str) {
     return String(str || "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/œ/g, "oe")
         .replace(/æ/g, "ae")
-        .replace(/\s+/g, " ")       // supprime espaces multiples
+        .replace(/\s+/g, " ")
         .trim()
         .toLowerCase();
 }
 
-/* ============================
-   BEEP (compatible smartphone)
-============================ */
 function playBeep() {
     try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -30,30 +24,25 @@ function playBeep() {
     } catch (e) {}
 }
 
-/* ============================
-   PANELS ADMIN / UTILISATEUR
-============================ */
 const modeToggle = document.getElementById("modeToggle");
 const adminPanel = document.getElementById("adminPanel");
 const userPanel = document.getElementById("userPanel");
 
 modeToggle.addEventListener("click", () => {
-    const adminVisible = adminPanel.style.display === "block";
+    const settingsVisible = adminPanel.style.display === "block";
 
-    adminPanel.style.display = adminVisible ? "none" : "block";
-    userPanel.style.display = adminVisible ? "block" : "none";
+    adminPanel.style.display = settingsVisible ? "none" : "block";
+    userPanel.style.display = settingsVisible ? "block" : "none";
 
-    modeToggle.textContent = adminVisible ? "Mode Admin" : "Mode Utilisateur";
+    modeToggle.textContent = settingsVisible ? "Paramètres" : "Accueil";
 });
 
-/* ============================
-   IMPORT EXCEL + NETTOYAGE
-============================ */
 let excelData = [];
 
 const excelInput = document.getElementById("excelFile");
 const fileList = document.getElementById("fileList");
 const dataTableBody = document.querySelector("#dataTable tbody");
+const citySelect = document.getElementById("citySelect");
 
 excelInput.addEventListener("change", (e) => {
     const file = e.target.files[0];
@@ -69,7 +58,6 @@ excelInput.addEventListener("change", (e) => {
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(sheet);
 
-        /* Nettoyage automatique */
         json.forEach(row => {
             row.Ville = normalizeText(row.Ville);
             row.Adresse = normalizeText(row.Adresse);
@@ -77,6 +65,18 @@ excelInput.addEventListener("change", (e) => {
         });
 
         excelData = json;
+
+        let villesUniques = [...new Set(json.map(row => row.Ville))];
+        villesUniques = villesUniques.filter(v => v.trim() !== "");
+        villesUniques.sort();
+
+        citySelect.innerHTML = `<option value="">-- Choisir une ville --</option>`;
+        villesUniques.forEach(v => {
+            const opt = document.createElement("option");
+            opt.value = v;
+            opt.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+            citySelect.appendChild(opt);
+        });
 
         dataTableBody.innerHTML = "";
 
@@ -99,14 +99,8 @@ excelInput.addEventListener("change", (e) => {
     reader.readAsBinaryString(file);
 });
 
-/* ============================
-   DÉTECTION iPHONE
-============================ */
 const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-/* ============================
-   MICRO & RECONNAISSANCE VOCALE
-============================ */
 const voiceBtn = document.getElementById("voiceBtn");
 const statusText = document.getElementById("statusText");
 const manualInputs = document.getElementById("manualInputs");
@@ -120,9 +114,6 @@ const retryBtn = document.getElementById("retryBtn");
 let SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 
-/* ============================
-   GESTION DES BOUTONS
-============================ */
 function updateButtonsState() {
     const hasFile = excelData.length > 0;
 
@@ -135,7 +126,6 @@ function updateButtonsState() {
     manualBtn.style.opacity = hasFile ? "1" : "0.5";
 }
 
-/* ----- MODE iPHONE ----- */
 if (isIOS) {
     statusText.textContent = "Reconnaissance vocale non supportée sur iPhone. Utilisez le mode manuel.";
     manualInputs.style.display = "block";
@@ -147,11 +137,6 @@ if (isIOS) {
     recognition.lang = "fr-FR";
 }
 
-/* ============================
-   WORKFLOW VOCAL AVEC CONFIRMATION
-============================ */
-let step = 1;
-let city = "";
 let addressWord = "";
 let lastRecognized = "";
 let timeoutID = null;
@@ -170,9 +155,7 @@ if (!isIOS) {
         document.getElementById("resultCard").style.display = "none";
         document.getElementById("resultTableBody").innerHTML = "";
 
-        statusText.textContent = step === 1
-            ? "Dites la ville…"
-            : "Dites le dernier mot de l'adresse…";
+        statusText.textContent = "Dites le dernier mot de l'adresse…";
 
         voiceBtn.classList.add("listening");
         recognition.start();
@@ -201,18 +184,9 @@ if (!isIOS) {
     });
 
     confirmBtn.addEventListener("click", () => {
-        if (step === 1) {
-            city = normalizeText(lastRecognized);
-            step = 2;
-            voiceConfirmBox.style.display = "none";
-            statusText.textContent = "Ville confirmée : " + city + ". Maintenant dites le dernier mot de l'adresse.";
-            startListening();
-        } else {
-            addressWord = normalizeText(lastRecognized);
-            step = 1;
-            voiceConfirmBox.style.display = "none";
-            rechercherTournees(city, addressWord);
-        }
+        addressWord = normalizeText(lastRecognized);
+        voiceConfirmBox.style.display = "none";
+        rechercherTournees(citySelect.value, addressWord);
     });
 
     retryBtn.addEventListener("click", () => {
@@ -221,11 +195,8 @@ if (!isIOS) {
     });
 }
 
-/* ============================
-   MODE MANUEL (iPhone)
-============================ */
 manualBtn.addEventListener("click", () => {
-    const city = normalizeText(document.getElementById("manualCity").value);
+    const city = normalizeText(citySelect.value);
     const addressWord = normalizeText(document.getElementById("manualAddress").value);
 
     document.getElementById("resultTableBody").innerHTML = "";
@@ -234,10 +205,12 @@ manualBtn.addEventListener("click", () => {
     rechercherTournees(city, addressWord);
 });
 
-/* ============================
-   RECHERCHE DANS EXCEL
-============================ */
 function rechercherTournees(ville, motAdresse) {
+
+    if (!ville || ville.trim() === "") {
+        statusText.textContent = "Veuillez sélectionner une ville.";
+        return;
+    }
 
     if (excelData.length === 0) {
         statusText.textContent = "Aucun fichier chargé.";
@@ -277,9 +250,6 @@ function rechercherTournees(ville, motAdresse) {
     applyMobileLabels();
 }
 
-/* ============================
-   AJOUT AUTOMATIQUE DES LABELS (MOBILE)
-============================ */
 function applyMobileLabels() {
     const tables = document.querySelectorAll("table");
 
@@ -296,11 +266,8 @@ function applyMobileLabels() {
     });
 }
 
-/* ============================
-   MODE UTILISATEUR AU CHARGEMENT
-============================ */
 window.addEventListener("load", () => {
     adminPanel.style.display = "none";
     userPanel.style.display = "block";
-    modeToggle.textContent = "Mode Admin";
+    modeToggle.textContent = "Paramètres";
 });
