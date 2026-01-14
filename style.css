@@ -344,3 +344,15 @@ th, td {
   padding: 6px;
   border-bottom: 1px solid #333;
 }
+
+/* 🔍 STYLE DES RÉSULTATS DU MOTEUR DE RECHERCHE */
+.live-search-results table {
+  text-transform: uppercase;   /* tout en MAJUSCULES */
+  text-align: center;          /* centré */
+}
+
+.live-search-results td,
+.live-search-results th {
+  text-align: center;          /* centre chaque cellule */
+}
+
