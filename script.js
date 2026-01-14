@@ -436,6 +436,12 @@ manualBtn.addEventListener("click", () => {
 liveSearchInput.addEventListener("input", () => {
     const query = normalizeText(liveSearchInput.value);
 
+    // 🔥 Force le scroll pour afficher les résultats au-dessus du clavier
+setTimeout(() => {
+    liveSearchContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+}, 50);
+
+
     if (!selectedCity) {
         liveSearchResults.innerHTML = "<p style='color:#aaa;'>Sélectionnez une ville.</p>";
         return;

@@ -310,8 +310,8 @@ th, td {
 
 /* 🔍 RECHERCHE LIVE */
 .live-search-input {
-  width: 100%;
-  max-width: 350px;
+  width: 70%;
+  max-width: 280px;
   margin: 0 auto;
   display: block;
   padding: 10px;
