@@ -31,7 +31,7 @@ function playBeep() {
 }
 
 /* ---------------------------------------------------------
-   VIBRATION (AJOUT)
+   VIBRATION
 --------------------------------------------------------- */
 function vibrate(ms) {
     navigator.vibrate?.(ms);
@@ -221,6 +221,11 @@ const popupOverlay = document.getElementById("popupOverlay");
 const popupContent = document.getElementById("popupContent");
 const popupClose = document.getElementById("popupClose");
 
+/* 🔍 RECHERCHE LIVE */
+const liveSearchContainer = document.getElementById("liveSearchContainer");
+const liveSearchInput = document.getElementById("liveSearchInput");
+const liveSearchResults = document.getElementById("liveSearchResults");
+
 /* ---------------------------------------------------------
    BASCULE PARAMÈTRES / ACCUEIL
 --------------------------------------------------------- */
@@ -273,10 +278,16 @@ excelInput.addEventListener("change", (e) => {
             btn.dataset.value = v;
 
             btn.addEventListener("click", () => {
-                vibrate(50); // 🔥 AJOUT
+                vibrate(50);
+
                 document.querySelectorAll(".city-btn").forEach(b => b.classList.remove("active"));
                 btn.classList.add("active");
                 selectedCity = v;
+
+                /* 🔥 AFFICHER LE MOTEUR DE RECHERCHE LIVE */
+                liveSearchContainer.style.display = "block";
+                liveSearchInput.value = "";
+                liveSearchResults.innerHTML = "";
             });
 
             cityBtnContainer.appendChild(btn);
@@ -345,7 +356,7 @@ let timeoutID = null;
 
 if (!isIOS) {
     voiceBtn.addEventListener("click", () => {
-        vibrate(60); // 🔥 AJOUT
+        vibrate(60);
         startListening();
     });
 
@@ -417,6 +428,57 @@ manualBtn.addEventListener("click", () => {
     const bestWord = getBestAddressWord(cleaned) || cleaned;
 
     rechercherTournees(city, bestWord);
+});
+
+/* ---------------------------------------------------------
+   🔍 RECHERCHE LIVE AUTOMATIQUE
+--------------------------------------------------------- */
+liveSearchInput.addEventListener("input", () => {
+    const query = normalizeText(liveSearchInput.value);
+
+    if (!selectedCity) {
+        liveSearchResults.innerHTML = "<p style='color:#aaa;'>Sélectionnez une ville.</p>";
+        return;
+    }
+
+    if (query.length < 2) {
+        liveSearchResults.innerHTML = "";
+        return;
+    }
+
+    const matches = excelData.filter(row =>
+        row.Ville === normalizeText(selectedCity) &&
+        row.Adresse.includes(query)
+    );
+
+    if (matches.length === 0) {
+        liveSearchResults.innerHTML = "<p style='color:#aaa;'>Aucun résultat.</p>";
+        return;
+    }
+
+    let html = `
+        <table>
+            <thead>
+                <tr>
+                    <th>Adresse</th>
+                    <th>Numéro</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    matches.forEach(m => {
+        html += `
+            <tr>
+                <td>${m.Adresse}</td>
+                <td>${m["Numéro de tournée"]}</td>
+            </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+
+    liveSearchResults.innerHTML = html;
 });
 
 /* ---------------------------------------------------------

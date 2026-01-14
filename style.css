@@ -307,3 +307,40 @@ th, td {
     font-size: 0.8rem;
   }
 }
+
+/* 🔍 RECHERCHE LIVE */
+.live-search-input {
+  width: 100%;
+  max-width: 350px;
+  margin: 0 auto;
+  display: block;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.live-search-results {
+  width: 90%;
+  max-width: 380px;
+  margin: 10px auto 0 auto;
+  margin-top: 10px;
+  background: #1a1a1a;
+  padding: 10px;
+  border-radius: 8px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.live-search-results table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.live-search-results td,
+.live-search-results th {
+  padding: 6px;
+  border-bottom: 1px solid #333;
+}
