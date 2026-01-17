@@ -1,12 +1,38 @@
-/* STRUCTURE GLOBALE */
+/* =========================================================
+   🎨 PALETTE & BASE
+========================================================= */
+:root {
+  --bg-dark: #111;
+  --bg-panel: #1c1c1c;
+  --bg-input: #222;
+  --bg-btn: #0077ff;
+  --bg-btn-hover: #0090ff;
+  --bg-popup: rgba(0,0,0,0.75);
+
+  --text-light: #f2f2f2;
+  --text-muted: #aaa;
+
+  --border: #333;
+  --border-strong: #444;
+
+  --radius: 8px;
+  --radius-lg: 12px;
+
+  --transition: 0.25s ease;
+}
+
+/* =========================================================
+   🧱 STRUCTURE GLOBALE
+========================================================= */
 html, body {
-  height: 100%;
   margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg-dark);
+  color: var(--text-light);
+  font-family: Arial, sans-serif;
   display: flex;
   flex-direction: column;
-  background: #111;
-  color: #f2f2f2;
-  font-family: Arial, sans-serif;
 }
 
 .app-container {
@@ -21,9 +47,11 @@ html, body {
   overflow-x: hidden;
 }
 
-/* HEADER */
+/* =========================================================
+   🏷️ HEADER
+========================================================= */
 .app-header {
-  background: #1c1c1c;
+  background: var(--bg-panel);
   padding: 10px;
   box-shadow: 0 0 10px black;
   position: sticky;
@@ -45,52 +73,51 @@ html, body {
 }
 
 .site-title {
-  justify-self: center;
   text-align: center;
   font-size: 1.4rem;
   font-weight: bold;
-  color: white;
 }
 
 .mode-toggle {
-  justify-self: end;
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: none;
-  background: #0077ff;
+  background: var(--bg-btn);
   color: white;
   cursor: pointer;
   font-size: 0.95rem;
-  transition: 0.25s ease;
+  transition: var(--transition);
 }
 
 .mode-toggle:hover {
-  background: #0090ff;
+  background: var(--bg-btn-hover);
   transform: scale(1.03);
 }
 
-/* BOUTON FICHIER STYLÉ */
+/* =========================================================
+   📁 BOUTON FICHIER
+========================================================= */
 .file-btn {
   display: inline-block;
   padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  background: #0077ff;
+  border-radius: var(--radius);
+  background: var(--bg-btn);
   color: white;
   cursor: pointer;
   font-size: 0.95rem;
-  text-align: center;
-  transition: 0.25s ease;
+  transition: var(--transition);
   margin-top: 10px;
 }
 
 .file-btn:hover {
-  background: #0090ff;
+  background: var(--bg-btn-hover);
   box-shadow: 0 0 10px rgba(0,150,255,0.5);
   transform: scale(1.03);
 }
 
-/* BOUTONS BRAS + VILLES */
+/* =========================================================
+   🏙️ BRAS & VILLES
+========================================================= */
 .city-btn-container {
   display: flex;
   flex-wrap: wrap;
@@ -101,12 +128,12 @@ html, body {
 
 .city-btn {
   padding: 6px 10px;
-  border-radius: 6px;
-  border: 2px solid #444;
-  background: #222;
-  color: #f2f2f2;
+  border-radius: var(--radius);
+  border: 2px solid var(--border-strong);
+  background: var(--bg-input);
+  color: var(--text-light);
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: var(--transition);
   font-size: 0.85rem;
   min-width: 70px;
 }
@@ -119,7 +146,9 @@ html, body {
   transform: scale(1.05);
 }
 
-/* MICRO CENTRÉ */
+/* =========================================================
+   🎤 MICRO
+========================================================= */
 .voice-btn {
   display: block;
   margin: 15px auto 0 auto;
@@ -127,13 +156,12 @@ html, body {
   font-size: 2rem;
   border-radius: 50%;
   border: none;
-  background: #0077ff;
+  background: var(--bg-btn);
   color: white;
   cursor: pointer;
-  transition: 0.25s ease;
+  transition: var(--transition);
 }
 
-/* MICRO EN ÉCOUTE */
 .voice-btn.listening {
   background: #00cc44;
   transform: scale(1.25);
@@ -142,8 +170,8 @@ html, body {
 }
 
 @keyframes pulseMic {
-  0%   { transform: scale(1.20); }
-  50%  { transform: scale(1.32); }
+  0% { transform: scale(1.20); }
+  50% { transform: scale(1.32); }
   100% { transform: scale(1.20); }
 }
 
@@ -152,34 +180,33 @@ html, body {
   margin-top: 10px;
 }
 
-/* CONFIRMATION VOCALE */
+/* =========================================================
+   🔊 CONFIRMATION VOCALE
+========================================================= */
 .voice-confirm-box {
   display: none;
-  background: #222;
+  background: var(--bg-input);
   padding: 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   margin-top: 10px;
-  color: #f2f2f2;
 }
 
-.confirm-btn, .retry-btn {
+.confirm-btn,
+.retry-btn {
   padding: 10px 20px;
   margin: 5px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: none;
   cursor: pointer;
   color: white;
 }
 
-.confirm-btn {
-  background: #00c3ff;
-}
+.confirm-btn { background: #00c3ff; }
+.retry-btn { background: #444; }
 
-.retry-btn {
-  background: #444;
-}
-
-/* MODE MANUEL */
+/* =========================================================
+   ✍️ MODE MANUEL
+========================================================= */
 .manual-inputs {
   margin-top: 10px;
   text-align: center;
@@ -189,127 +216,43 @@ html, body {
   padding: 8px;
   width: 80%;
   margin-bottom: 10px;
-  border-radius: 8px;
-  border: 1px solid #555;
-  background: #222;
-  color: #f2f2f2;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-input);
+  color: var(--text-light);
 }
 
 .manual-btn {
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   border: none;
-  background: #0077ff;
+  background: var(--bg-btn);
   color: white;
   cursor: pointer;
 }
 
-/* TABLES */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
+/* =========================================================
+   🔍 RECHERCHE LIVE (CHAMP & TABLEAU INDÉPENDANTS)
+========================================================= */
 
-th, td {
-  padding: 8px;
-  border-bottom: 1px solid #333;
-  color: #f2f2f2;
-}
-
-/* POPUP */
-.popup-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.75);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.popup-window {
-  background: #1c1c1c;
-  padding: 20px;
-  border-radius: 12px;
-  width: 85%;
-  max-width: 400px;
-  box-shadow: 0 0 20px black;
-  text-align: center;
-  color: white;
-  animation: popupFade 0.25s ease-out;
-}
-
-@keyframes popupFade {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-.popup-window table td,
-.popup-window table th {
-  text-transform: uppercase;
-}
-
-.popup-close {
-  margin-top: 15px;
-  padding: 10px 20px;
-  background: #0077ff;
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-}
-
-/* FOOTER */
-.app-footer {
-  text-align: center;
-  padding: 20px;
-  background: #1c1c1c;
-  margin-top: auto;
-  color: #f2f2f2;
-}
-
-/* RESPONSIVE */
-@media (max-width: 600px) {
-  h2 {
-    font-size: 1.2rem;
-    margin-bottom: 5px;
-  }
-
-  .voice-btn {
-    margin-top: 10px;
-    padding: 12px;
-    font-size: 1.8rem;
-  }
-
-  table th, table td {
-    padding: 6px;
-    font-size: 0.8rem;
-  }
-}
-
-/* 🔍 RECHERCHE LIVE — CHAMP ÉLARGI */
+/* Champ de recherche : largeur indépendante */
 .search-wrapper {
-  position: relative;
-  width: 90%;
-  max-width: 380px;
+  width: 320px;
   margin: 0 auto;
+  position: relative;
 }
 
 .live-search-input {
   width: 100%;
   padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background: #222;
-  color: #fff;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-input);
+  color: white;
   font-size: 0.95rem;
 }
 
-/* BOUTON EFFACER */
+/* Bouton effacer */
 .clear-search-btn {
   position: absolute;
   right: 10px;
@@ -320,7 +263,7 @@ th, td {
   color: white;
   font-size: 1rem;
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--radius);
   cursor: pointer;
   display: none;
 }
@@ -329,14 +272,14 @@ th, td {
   background: #666;
 }
 
-/* 🔍 RÉSULTATS ÉLARGIS */
+/* Tableau de résultats : largeur indépendante */
 .live-search-results {
-  width: 90%;
-  max-width: 380px;
+  width: 420px !important;
+  max-width: 420px !important;
   margin: 10px auto 0 auto;
-  background: #1a1a1a;
+  background: var(--bg-panel);
   padding: 10px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   max-height: 250px;
   overflow-y: auto;
 }
@@ -344,13 +287,151 @@ th, td {
 .live-search-results table {
   width: 100%;
   border-collapse: collapse;
-  text-transform: uppercase;
+  table-layout: fixed;
+}
+
+.live-search-results th,
+.live-search-results td {
+  padding: 6px;
+  border-bottom: 1px solid var(--border);
+  word-wrap: break-word;
   text-align: center;
 }
 
-.live-search-results td,
-.live-search-results th {
-  padding: 6px;
-  border-bottom: 1px solid #333;
-  text-align: center;
+/* =========================================================
+   📊 TABLEAU APERÇU
+========================================================= */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
 }
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* =========================================================
+   🪟 POPUP
+========================================================= */
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-popup);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.popup-window {
+  background: var(--bg-panel);
+  padding: 20px;
+  border-radius: var(--radius-lg);
+  width: 85%;
+  max-width: 400px;
+  box-shadow: 0 0 20px black;
+  text-align: center;
+  animation: popupFade 0.25s ease-out;
+}
+
+@keyframes popupFade {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.popup-close {
+  margin-top: 15px;
+  padding: 10px 20px;
+  background: var(--bg-btn);
+  border: none;
+  border-radius: var(--radius);
+  color: white;
+  cursor: pointer;
+}
+
+/* =========================================================
+   🦶 FOOTER
+========================================================= */
+.app-footer {
+  text-align: center;
+  padding: 20px;
+  background: var(--bg-panel);
+  margin-top: auto;
+}
+
+/* =========================================================
+   📱 RESPONSIVE
+========================================================= */
+@media (max-width: 600px) {
+  h2 { font-size: 1.2rem; }
+
+  .voice-btn {
+    padding: 12px;
+    font-size: 1.8rem;
+  }
+
+  table th, table td {
+    padding: 6px;
+    font-size: 0.8rem;
+  }
+}
+
+/* 🔠 Forcer les résultats en MAJUSCULE (popup + recherche live) */
+.live-search-results table,
+.live-search-results td,
+.live-search-results th,
+.popup-window table,
+.popup-window td,
+.popup-window th {
+    text-transform: uppercase;
+}
+
+/* 🔧 Réduction de la colonne NUMÉRO dans les résultats manuels */ .live-search-results table th:nth-child(3),
+.live-search-results table td:nth-child(3) 
+{ width: 70px !important;
+   /* ← ajuste ici la largeur souhaitée */
+   max-width: 70px !important; text-align: center; }
+
+.clear-search-btn:hover {
+    background: #e05f5f;         /* rouge un peu plus clair au survol */
+}
+
+/* 🎯 Centrage parfait du champ de saisie */
+.search-wrapper {
+    width: 320px;                 /* largeur du champ */
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    display: flex;
+    justify-content: center;      /* centre le champ */
+}
+
+/* Le champ lui-même */
+.live-search-input {
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+}
+
+ /* 🔴 Bouton effacer : rouge doux + position plus à droite */
+/* Bouton effacer : ne doit PAS décaler le champ */
+.clear-search-btn {
+    position: absolute;
+    right: 4px;                  /* collé à droite sans pousser le champ */
+    top: 50%;
+    transform: translateY(-50%);
+    background: #cc4b4b;
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: none;
+    transition: 0.2s ease;
+}
+
+
+
