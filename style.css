@@ -433,5 +433,29 @@ th, td {
     transition: 0.2s ease;
 }
 
+/* 📱 Empêcher le débordement du tableau sur smartphone */
+.live-search-results {
+    width: 100% !important;          /* s'adapte à l'écran */
+    max-width: 420px;                /* limite propre */
+    margin: 10px auto 0 auto;
+    overflow-x: hidden;              /* empêche le débordement horizontal */
+    box-sizing: border-box;          /* évite les dépassements liés au padding */
+}
+
+/* Le tableau respecte la largeur du conteneur */
+.live-search-results table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
+/* Colonnes compactes pour éviter l'étirement */
+.live-search-results th,
+.live-search-results td {
+    word-wrap: break-word;
+    white-space: normal;
+    padding: 6px;
+}
+
+
 
 
