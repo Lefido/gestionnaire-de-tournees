@@ -283,7 +283,10 @@ excelInput.addEventListener("change", (e) => {
         brasUniques.forEach(b => {
             const btn = document.createElement("button");
             btn.classList.add("city-btn");
-            btn.textContent = b.toUpperCase();
+
+            // 🔧 CORRECTION A1 : texte en minuscules, CSS fait le capitalize
+            btn.textContent = b.toLowerCase();
+
             btn.dataset.value = b;
 
             btn.addEventListener("click", () => {
@@ -308,7 +311,10 @@ excelInput.addEventListener("change", (e) => {
                 villes.forEach(v => {
                     const vbtn = document.createElement("button");
                     vbtn.classList.add("city-btn");
-                    vbtn.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+
+                    // 🔧 CORRECTION A1 : texte en minuscules, CSS fait le capitalize
+                    vbtn.textContent = v.toLowerCase();
+
                     vbtn.dataset.value = v;
 
                     vbtn.addEventListener("click", () => {
@@ -480,7 +486,6 @@ clearSearchBtn.addEventListener("click", () => {
     liveSearchResults.innerHTML = "";
     clearSearchBtn.style.display = "none";
 
-    // Fermer le clavier mobile
     liveSearchInput.blur();
 });
 
@@ -583,7 +588,7 @@ function rechercherTournees(motAdresse) {
       <tbody>
     `;
 
-        matches.forEach(m => {
+    matches.forEach(m => {
         html += `
         <tr>
           <td>${m.Ville}</td>

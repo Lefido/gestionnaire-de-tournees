@@ -461,6 +461,13 @@ th, td {
     padding: 6px;
 }
 
+/* 🅰️ Première lettre en majuscule pour BRAS + VILLES */
+.city-btn {
+    text-transform: capitalize !important;
+}
+
+
+
 
 
 
