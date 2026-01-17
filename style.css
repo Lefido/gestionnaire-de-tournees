@@ -185,7 +185,7 @@ html, body {
 ========================================================= */
 .voice-confirm-box {
   display: none;
-  width: 60%;
+  width: 80%;
   background: var(--bg-input);
   padding: 12px;
   border-radius: var(--radius-lg);
