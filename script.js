@@ -18,11 +18,16 @@ function playBeep() {
 
 window.addEventListener("DOMContentLoaded", () => {
     const saved = localStorage.getItem("tourneeData");
-    if (saved) { 
-        excelData = JSON.parse(saved); 
-        refreshUI(); 
-    }
+    if (saved) { excelData = JSON.parse(saved); refreshUI(); }
     checkDataWarning();
+
+    // AUTO-SCROLL quand on clique sur la recherche
+    const searchInput = document.getElementById("liveSearchInput");
+    searchInput.addEventListener("focus", () => {
+        setTimeout(() => {
+            document.getElementById("liveSearchContainer").scrollIntoView({ behavior: 'smooth' });
+        }, 300); // Petit délai pour laisser le clavier sortir
+    });
 });
 
 function checkDataWarning() {
@@ -46,13 +51,12 @@ document.getElementById("excelFile").addEventListener("change", function(e) {
         localStorage.setItem("tourneeData", JSON.stringify(excelData));
         refreshUI();
         checkDataWarning();
-        alert("Données importées avec succès !");
+        alert("Données importées !");
     };
     reader.readAsArrayBuffer(file);
 });
 
 function refreshUI() {
-    // Admin Table
     const tbody = document.getElementById("adminTableBody");
     if (tbody) {
         tbody.innerHTML = "";
@@ -63,7 +67,6 @@ function refreshUI() {
         });
     }
 
-    // Bras Buttons with cascade animation
     const brasUniques = [...new Set(excelData.map(r => r.BRAS))].filter(b => b).sort();
     const container = document.getElementById("brasBtnContainer"); 
     if (container) {
@@ -83,12 +86,10 @@ function selectBras(bras, btn) {
     selectedBras = bras; selectedCity = "";
     document.querySelectorAll("#brasBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
-    
     document.getElementById("titleVille").style.display = "block";
     const villes = [...new Set(excelData.filter(r => r.BRAS === bras).map(r => r.Ville))].filter(v => v).sort();
     const cityContainer = document.getElementById("cityBtnContainer");
     cityContainer.innerHTML = "";
-    
     villes.forEach((v, index) => {
         const vBtn = document.createElement("button"); 
         vBtn.className = "city-btn city-appear"; 
@@ -104,7 +105,6 @@ function selectBras(bras, btn) {
     document.getElementById("liveSearchContainer").style.display = "block";
 }
 
-// MANUAL SEARCH
 document.getElementById("liveSearchInput").addEventListener("input", function() {
     const val = this.value.toLowerCase().trim();
     const resDiv = document.getElementById("liveSearchResults");
@@ -125,29 +125,22 @@ document.getElementById("clearSearchBtn").onclick = function() {
     this.style.display = "none";
 };
 
-// VOICE SEARCH
 if (recognition) {
     document.getElementById("voiceBtn").onclick = () => {
         if (!selectedBras) { alert("Sélectionnez d'abord un BRAS"); return; }
-        
-        // Clean manual search
         document.getElementById("liveSearchInput").value = "";
         document.getElementById("liveSearchResults").style.display = "none";
-        document.getElementById("clearSearchBtn").style.display = "none";
-
         playBeep();
         recognition.start();
         document.getElementById("voiceBtn").classList.add("listening");
-        document.getElementById("statusText").textContent = "Dites le dernier mot de l'adresse...";
+        document.getElementById("statusText").textContent = "Dites le dernier mot...";
     };
-
     recognition.onresult = (e) => {
         const transcript = e.results[0][0].transcript.toLowerCase();
         lastRecognized = transcript.split(" ").pop();
         document.getElementById("voiceConfirmText").textContent = `Rechercher : "${transcript}" ?`;
         document.getElementById("voiceConfirmBox").style.display = "flex";
     };
-
     recognition.onend = () => {
         document.getElementById("voiceBtn").classList.remove("listening");
         document.getElementById("statusText").textContent = "Prêt.";
@@ -171,12 +164,10 @@ document.getElementById("retryBtn").onclick = () => {
 };
 
 document.getElementById("popupClose").onclick = () => { document.getElementById("popupOverlay").style.display = "none"; };
-
 document.getElementById("modeToggle").onclick = function() {
     const admin = document.getElementById("adminPanel"), user = document.getElementById("userPanel");
     const isUser = admin.style.display === "none";
     admin.style.display = isUser ? "block" : "none"; user.style.display = isUser ? "none" : "block";
     this.textContent = isUser ? "Accueil" : "Paramètres";
 };
-
 document.getElementById("clearStorageBtn").onclick = () => { if(confirm("Effacer tout ?")) { localStorage.clear(); location.reload(); } };
