@@ -41,6 +41,7 @@ function vibrate(ms) {
    VARIABLES GLOBALES
 --------------------------------------------------------- */
 let excelData = [];
+let selectedBras = "";
 let selectedCity = "";
 let addressWords = [];
 let addressWordFrequency = {};
@@ -204,6 +205,8 @@ const userPanel = document.getElementById("userPanel");
 const excelInput = document.getElementById("excelFile");
 const fileList = document.getElementById("fileList");
 const dataTableBody = document.querySelector("#dataTable tbody");
+
+const brasBtnContainer = document.getElementById("brasBtnContainer");
 const cityBtnContainer = document.getElementById("cityBtnContainer");
 
 const voiceBtn = document.getElementById("voiceBtn");
@@ -257,6 +260,7 @@ excelInput.addEventListener("change", (e) => {
         const json = XLSX.utils.sheet_to_json(sheet);
 
         json.forEach(row => {
+            row.BRAS = normalizeText(row.BRAS);
             row.Ville = normalizeText(row.Ville);
             row.Adresse = normalizeText(row.Adresse);
             row["Numéro de tournée"] = String(row["Numéro de tournée"] || "").trim();
@@ -265,38 +269,75 @@ excelInput.addEventListener("change", (e) => {
         excelData = json;
         buildAddressWords();
 
-        let villesUniques = [...new Set(json.map(row => row.Ville))]
-            .filter(v => v.trim() !== "")
+        /* BRAS UNIQUES */
+        let brasUniques = [...new Set(json.map(row => row.BRAS))]
+            .filter(b => b.trim() !== "")
             .sort();
 
+        brasBtnContainer.innerHTML = "";
         cityBtnContainer.innerHTML = "";
+        selectedBras = "";
+        selectedCity = "";
 
-        villesUniques.forEach(v => {
+        brasUniques.forEach(b => {
             const btn = document.createElement("button");
             btn.classList.add("city-btn");
-            btn.textContent = v.charAt(0).toUpperCase() + v.slice(1);
-            btn.dataset.value = v;
+            btn.textContent = b.toUpperCase();
+            btn.dataset.value = b;
 
             btn.addEventListener("click", () => {
                 vibrate(50);
 
-                document.querySelectorAll(".city-btn").forEach(b => b.classList.remove("active"));
-                btn.classList.add("active");
-                selectedCity = v;
+                selectedBras = b;
+                selectedCity = "";
 
-                /* 🔥 AFFICHER LE MOTEUR DE RECHERCHE LIVE */
+                document.querySelectorAll("#brasBtnContainer .city-btn")
+                    .forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+
+                /* VILLES DU BRAS */
+                const villes = [...new Set(
+                    excelData
+                        .filter(r => r.BRAS === b)
+                        .map(r => r.Ville)
+                )].sort();
+
+                cityBtnContainer.innerHTML = "";
+
+                villes.forEach(v => {
+                    const vbtn = document.createElement("button");
+                    vbtn.classList.add("city-btn");
+                    vbtn.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+                    vbtn.dataset.value = v;
+
+                    vbtn.addEventListener("click", () => {
+                        vibrate(50);
+
+                        selectedCity = v;
+
+                        document.querySelectorAll("#cityBtnContainer .city-btn")
+                            .forEach(b => b.classList.remove("active"));
+                        vbtn.classList.add("active");
+                    });
+
+                    cityBtnContainer.appendChild(vbtn);
+                });
+
+                /* AFFICHER LE MOTEUR DE RECHERCHE */
                 liveSearchContainer.style.display = "block";
                 liveSearchInput.value = "";
                 liveSearchResults.innerHTML = "";
             });
 
-            cityBtnContainer.appendChild(btn);
+            brasBtnContainer.appendChild(btn);
         });
 
+        /* TABLEAU APERÇU */
         dataTableBody.innerHTML = "";
         json.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `
+                <td>${row.BRAS}</td>
                 <td>${row.Ville}</td>
                 <td>${row.Adresse}</td>
                 <td>${row["Numéro de tournée"]}</td>
@@ -407,7 +448,7 @@ if (!isIOS) {
     });
 
     confirmBtn.addEventListener("click", () => {
-        rechercherTournees(selectedCity, lastRecognized);
+        rechercherTournees(lastRecognized);
         voiceConfirmBox.style.display = "none";
     });
 
@@ -421,13 +462,12 @@ if (!isIOS) {
    MODE MANUEL
 --------------------------------------------------------- */
 manualBtn.addEventListener("click", () => {
-    const city = normalizeText(selectedCity);
     const raw = normalizeText(document.getElementById("manualAddress").value);
 
     const cleaned = cleanPhraseToKeyWord(raw);
     const bestWord = getBestAddressWord(cleaned) || cleaned;
 
-    rechercherTournees(city, bestWord);
+    rechercherTournees(bestWord);
 });
 
 /* ---------------------------------------------------------
@@ -436,14 +476,12 @@ manualBtn.addEventListener("click", () => {
 liveSearchInput.addEventListener("input", () => {
     const query = normalizeText(liveSearchInput.value);
 
-    // 🔥 Force le scroll pour afficher les résultats au-dessus du clavier
-setTimeout(() => {
-    liveSearchContainer.scrollIntoView({ behavior: "smooth", block: "start" });
-}, 50);
+    setTimeout(() => {
+        liveSearchContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
 
-
-    if (!selectedCity) {
-        liveSearchResults.innerHTML = "<p style='color:#aaa;'>Sélectionnez une ville.</p>";
+    if (!selectedBras) {
+        liveSearchResults.innerHTML = "<p style='color:#aaa;'>Sélectionnez un BRAS.</p>";
         return;
     }
 
@@ -453,7 +491,8 @@ setTimeout(() => {
     }
 
     const matches = excelData.filter(row =>
-        row.Ville === normalizeText(selectedCity) &&
+        row.BRAS === selectedBras &&
+        (!selectedCity || row.Ville === selectedCity) &&
         row.Adresse.includes(query)
     );
 
@@ -466,6 +505,7 @@ setTimeout(() => {
         <table>
             <thead>
                 <tr>
+                    <th>Ville</th>
                     <th>Adresse</th>
                     <th>Numéro</th>
                 </tr>
@@ -476,6 +516,7 @@ setTimeout(() => {
     matches.forEach(m => {
         html += `
             <tr>
+                <td>${m.Ville}</td>
                 <td>${m.Adresse}</td>
                 <td>${m["Numéro de tournée"]}</td>
             </tr>
@@ -490,10 +531,10 @@ setTimeout(() => {
 /* ---------------------------------------------------------
    RECHERCHE DES TOURNÉES + POPUP
 --------------------------------------------------------- */
-function rechercherTournees(ville, motAdresse) {
+function rechercherTournees(motAdresse) {
 
-    if (!ville) {
-        statusText.textContent = "Veuillez sélectionner une ville.";
+    if (!selectedBras) {
+        statusText.textContent = "Veuillez sélectionner un BRAS.";
         return;
     }
 
@@ -503,7 +544,8 @@ function rechercherTournees(ville, motAdresse) {
     }
 
     const matches = excelData.filter(row =>
-        row.Ville === normalizeText(ville) &&
+        row.BRAS === selectedBras &&
+        (!selectedCity || row.Ville === selectedCity) &&
         row.Adresse.includes(normalizeText(motAdresse))
     );
 
@@ -524,7 +566,6 @@ function rechercherTournees(ville, motAdresse) {
       </thead>
       <tbody>
     `;
-
     matches.forEach(m => {
         html += `
         <tr>

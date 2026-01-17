@@ -33,11 +33,13 @@
         <!-- PANEL UTILISATEUR -->
         <section id="userPanel">
 
-            <h2 style="text-align:center;">Sélectionnez une ville</h2>
+            <!-- BRAS -->
+            <h2 style="text-align:center;">Sélectionnez un BRAS</h2>
+            <div id="brasBtnContainer" class="city-btn-container"></div>
 
-            <div class="city-buttons">
-                <div id="cityBtnContainer" class="city-btn-container"></div>
-            </div>
+            <!-- VILLES DU BRAS -->
+            <h2 style="text-align:center; margin-top:20px;">Sélectionnez une ville (optionnel)</h2>
+            <div id="cityBtnContainer" class="city-btn-container"></div>
 
             <!-- 🔍 RECHERCHE LIVE -->
             <div id="liveSearchContainer" style="display:none; margin-top:15px;">
@@ -89,6 +91,7 @@
             <table id="dataTable">
                 <thead>
                     <tr>
+                        <th>BRAS</th>
                         <th>Ville</th>
                         <th>Adresse</th>
                         <th>Numéro</th>

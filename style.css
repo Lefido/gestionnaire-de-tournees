@@ -90,17 +90,13 @@ html, body {
   transform: scale(1.03);
 }
 
-/* BOUTONS DE VILLE */
-.city-buttons {
-  margin: 5px 0 10px 0;
-  text-align: center;
-}
-
+/* BOUTONS BRAS + VILLES */
 .city-btn-container {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   justify-content: center;
+  margin-bottom: 10px;
 }
 
 .city-btn {
@@ -290,7 +286,6 @@ th, td {
 
 /* RESPONSIVE SMARTPHONE */
 @media (max-width: 600px) {
-
   h2 {
     font-size: 1.2rem;
     margin-bottom: 5px;
@@ -308,10 +303,10 @@ th, td {
   }
 }
 
-/* 🔍 RECHERCHE LIVE */
+/* 🔍 RECHERCHE LIVE — CHAMP COMPACT */
 .live-search-input {
-  width: 70%;
-  max-width: 280px;
+  width: 65%;
+  max-width: 260px;
   margin: 0 auto;
   display: block;
   padding: 10px;
@@ -319,14 +314,14 @@ th, td {
   border: 1px solid #444;
   background: #222;
   color: #fff;
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 
+/* 🔍 RÉSULTATS COMPACTS */
 .live-search-results {
   width: 90%;
   max-width: 380px;
   margin: 10px auto 0 auto;
-  margin-top: 10px;
   background: #1a1a1a;
   padding: 10px;
   border-radius: 8px;
@@ -337,22 +332,13 @@ th, td {
 .live-search-results table {
   width: 100%;
   border-collapse: collapse;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .live-search-results td,
 .live-search-results th {
   padding: 6px;
   border-bottom: 1px solid #333;
+  text-align: center;
 }
-
-/* 🔍 STYLE DES RÉSULTATS DU MOTEUR DE RECHERCHE */
-.live-search-results table {
-  text-transform: uppercase;   /* tout en MAJUSCULES */
-  text-align: center;          /* centré */
-}
-
-.live-search-results td,
-.live-search-results th {
-  text-align: center;          /* centre chaque cellule */
-}
-
