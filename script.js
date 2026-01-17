@@ -228,6 +228,7 @@ const popupClose = document.getElementById("popupClose");
 const liveSearchContainer = document.getElementById("liveSearchContainer");
 const liveSearchInput = document.getElementById("liveSearchInput");
 const liveSearchResults = document.getElementById("liveSearchResults");
+const clearSearchBtn = document.getElementById("clearSearchBtn");
 
 /* ---------------------------------------------------------
    BASCULE PARAMÈTRES / ACCUEIL
@@ -327,6 +328,7 @@ excelInput.addEventListener("change", (e) => {
                 liveSearchContainer.style.display = "block";
                 liveSearchInput.value = "";
                 liveSearchResults.innerHTML = "";
+                clearSearchBtn.style.display = "none";
             });
 
             brasBtnContainer.appendChild(btn);
@@ -471,10 +473,24 @@ manualBtn.addEventListener("click", () => {
 });
 
 /* ---------------------------------------------------------
+   BOUTON EFFACER LA RECHERCHE
+--------------------------------------------------------- */
+clearSearchBtn.addEventListener("click", () => {
+    liveSearchInput.value = "";
+    liveSearchResults.innerHTML = "";
+    clearSearchBtn.style.display = "none";
+
+    // Fermer le clavier mobile
+    liveSearchInput.blur();
+});
+
+/* ---------------------------------------------------------
    🔍 RECHERCHE LIVE AUTOMATIQUE
 --------------------------------------------------------- */
 liveSearchInput.addEventListener("input", () => {
     const query = normalizeText(liveSearchInput.value);
+
+    clearSearchBtn.style.display = query.length > 0 ? "block" : "none";
 
     setTimeout(() => {
         liveSearchContainer.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -566,7 +582,8 @@ function rechercherTournees(motAdresse) {
       </thead>
       <tbody>
     `;
-    matches.forEach(m => {
+
+        matches.forEach(m => {
         html += `
         <tr>
           <td>${m.Ville}</td>

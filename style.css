@@ -133,7 +133,7 @@ html, body {
   transition: 0.25s ease;
 }
 
-/* 🔥 MICRO EN ÉCOUTE : VERT + ZOOM + PULSATION */
+/* MICRO EN ÉCOUTE */
 .voice-btn.listening {
   background: #00cc44;
   transform: scale(1.25);
@@ -248,21 +248,9 @@ th, td {
   to   { transform: scale(1); opacity: 1; }
 }
 
-/* 🔠 RÉSULTATS EN MAJUSCULES */
 .popup-window table td,
 .popup-window table th {
   text-transform: uppercase;
-}
-
-.popup-window table {
-  width: 100%;
-  margin-top: 10px;
-  border-collapse: collapse;
-}
-
-.popup-window th, .popup-window td {
-  padding: 6px;
-  border-bottom: 1px solid #333;
 }
 
 .popup-close {
@@ -284,7 +272,7 @@ th, td {
   color: #f2f2f2;
 }
 
-/* RESPONSIVE SMARTPHONE */
+/* RESPONSIVE */
 @media (max-width: 600px) {
   h2 {
     font-size: 1.2rem;
@@ -303,12 +291,16 @@ th, td {
   }
 }
 
-/* 🔍 RECHERCHE LIVE — CHAMP COMPACT */
-.live-search-input {
-  width: 65%;
-  max-width: 260px;
+/* 🔍 RECHERCHE LIVE — CHAMP ÉLARGI */
+.search-wrapper {
+  position: relative;
+  width: 90%;
+  max-width: 380px;
   margin: 0 auto;
-  display: block;
+}
+
+.live-search-input {
+  width: 100%;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #444;
@@ -317,7 +309,27 @@ th, td {
   font-size: 0.95rem;
 }
 
-/* 🔍 RÉSULTATS COMPACTS */
+/* BOUTON EFFACER */
+.clear-search-btn {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #444;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: none;
+}
+
+.clear-search-btn:hover {
+  background: #666;
+}
+
+/* 🔍 RÉSULTATS ÉLARGIS */
 .live-search-results {
   width: 90%;
   max-width: 380px;
