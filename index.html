@@ -2,132 +2,83 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" type="image/png" href="snipers.png">
     <title>Assistant Tournées</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div class="app-container">
-
-    <!-- HEADER -->
     <header class="app-header">
         <div class="header-inner">
-
-            <div class="logo">
-                <img src="snipers.png" class="logo-img" alt="Snipers">
-            </div>
-
+            <div class="logo"><img src="snipers.png" class="logo-img" alt="Logo"></div>
             <div class="site-title">Assistant Tournées</div>
-
             <button id="modeToggle" class="mode-toggle">Paramètres</button>
-
         </div>
     </header>
 
-    <!-- CONTENU PRINCIPAL -->
     <main class="main-content">
-
-        <!-- PANEL UTILISATEUR -->
         <section id="userPanel">
-
-            <!-- BRAS -->
-            <h2 style="text-align:center;">Sélectionnez un BRAS de distribution</h2>
+            <h2 class="section-title">Sélectionnez un BRAS de distribution</h2>
             <div id="brasBtnContainer" class="city-btn-container"></div>
 
-            <!-- VILLES DU BRAS -->
-            <h2 style="text-align:center; margin-top:20px;">Sélectionnez une ville (optionnel)</h2>
+            <h2 id="titleVille" class="section-title" style="display:none; margin-top:20px;">Sélectionnez une ville (optionnel)</h2>
             <div id="cityBtnContainer" class="city-btn-container"></div>
 
-            <!-- 🔍 RECHERCHE LIVE -->
-            <div id="liveSearchContainer" style="display:none; margin-top:15px;">
-
+            <div id="liveSearchContainer" class="search-section" style="display:none;">
                 <div class="search-wrapper">
-                    <input 
-                        type="text" 
-                        id="liveSearchInput" 
-                        placeholder="Rechercher une adresse…" 
-                        class="live-search-input"
-                    >
+                    <input type="text" id="liveSearchInput" placeholder="Rechercher une adresse…" class="live-search-input">
                     <button id="clearSearchBtn" class="clear-search-btn">✖</button>
                 </div>
-
                 <div id="liveSearchResults" class="live-search-results"></div>
             </div>
 
-            <!-- MICRO -->
-            <button id="voiceBtn" class="voice-btn">🎤</button>
-
-            <div id="statusText" class="status-text">Dites le dernier mot de l'adresse…</div>
-
-            <!-- CONFIRMATION VOCALE -->
-            <div id="voiceConfirmBox" class="voice-confirm-box">
-                <div id="voiceConfirmText"></div>
-                <button id="confirmBtn" class="confirm-btn">Confirmer</button>
-                <button id="retryBtn" class="retry-btn">Recommencer</button>
+            <div class="voice-zone">
+                <button id="voiceBtn" class="voice-btn">🎤</button>
+                <div id="statusText" class="status-text">Prêt.</div>
             </div>
 
-            <!-- MODE MANUEL -->
-            <div id="manualInputs" class="manual-inputs" style="display:none;">
-                <input type="text" id="manualAddress" placeholder="Dernier mot de l'adresse">
-                <button id="manualSearchBtn" class="manual-btn">Rechercher</button>
+            <div id="voiceConfirmBox" class="voice-confirm-modal" style="display:none;">
+                <div id="voiceConfirmText" class="voice-confirm-msg"></div>
+                <div class="voice-confirm-btns">
+                    <button id="confirmBtn" class="confirm-action-btn">Confirmer</button>
+                    <button id="retryBtn" class="retry-action-btn">Réessayer</button>
+                </div>
             </div>
-
-            <div id="noFileWarning" style="text-align:center; margin-top:10px; color:#ff4444;">
-                Aucun fichier chargé.
-            </div>
-
+            
+            <div id="noFileWarning" class="warning-msg">Aucun fichier chargé.</div>
         </section>
 
-        <!-- PANEL PARAMÈTRES -->
         <section id="adminPanel" style="display:none;">
-
-            <h2 style="text-align:center;">Importer un fichier Excel</h2>
-
-            <!-- BOUTON FICHIER STYLÉ -->
-            <label for="excelFile" class="file-btn">Choisir un fichier</label>
-            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;">
-
-            <ul id="fileList" style="margin-top:10px;"></ul>
-
-            <h3 style="margin-top:20px;">Aperçu du fichier</h3>
-
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th>BRAS</th>
-                        <th>Ville</th>
-                        <th>Adresse</th>
-                        <th>Numéro</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
+            <h2 class="section-title">Gestion des données</h2>
+            <div class="admin-actions">
+                <label for="excelFile" class="file-btn">📥 Importer Excel</label>
+                <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;">
+                <button id="clearStorageBtn" class="danger-btn">⚠️ Effacer la mémoire</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr><th>BRAS</th><th>Ville</th><th>Adresse</th><th>N°</th></tr>
+                    </thead>
+                    <tbody id="adminTableBody"></tbody>
+                </table>
+            </div>
         </section>
-
     </main>
+    <footer class="app-footer">Frederic Boussemart by @Lefido</footer>
+</div>
 
-    <!-- POPUP RÉSULTATS -->
-    <div id="popupOverlay" class="popup-overlay">
-        <div class="popup-window">
-            <h3>Résultats trouvés</h3>
-            <div id="popupContent"></div>
-            <button id="popupClose" class="popup-close">Fermer</button>
-        </div>
+<div id="popupOverlay" class="popup-overlay" style="display:none;">
+    <div class="popup-window">
+        <h3 class="popup-title">Résultats</h3>
+        <div id="popupContent" class="popup-scroll"></div>
+        <button id="popupClose" class="mode-toggle">Fermer</button>
     </div>
-
-    <!-- FOOTER -->
-    <footer class="app-footer">
-        Frederic Boussemart by @Lefido
-    </footer>
-
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="script.js"></script>
-
 </body>
 </html>

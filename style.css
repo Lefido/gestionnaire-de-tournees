@@ -1,475 +1,78 @@
-/* =========================================================
-   🎨 PALETTE & BASE
-========================================================= */
-:root {
-  --bg-dark: #111;
-  --bg-panel: #1c1c1c;
-  --bg-input: #222;
-  --bg-btn: #0077ff;
-  --bg-btn-hover: #0090ff;
-  --bg-popup: rgba(0,0,0,0.75);
-
-  --text-light: #f2f2f2;
-  --text-muted: #aaa;
-
-  --border: #333;
-  --border-strong: #444;
-
-  --radius: 8px;
-  --radius-lg: 12px;
-
-  --transition: 0.25s ease;
+:root { 
+    --bg-dark: #111; 
+    --bg-panel: #1c1c1c; 
+    --bg-input: #262626; 
+    --bg-btn: #0077ff; 
+    --text-light: #f2f2f2; 
+    --border: #333; 
+    --danger: #cc4b4b; 
+    --success: #00cc44;
 }
 
-/* =========================================================
-   🧱 STRUCTURE GLOBALE
-========================================================= */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background: var(--bg-dark);
-  color: var(--text-light);
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
+html, body { margin: 0; padding: 0; height: 100%; background: var(--bg-dark); color: var(--text-light); font-family: sans-serif; overflow-x: hidden; }
+.app-container { display: flex; flex-direction: column; min-height: 100vh; }
+.main-content { flex: 1; padding: 15px; width: 100%; max-width: 650px; margin: 0 auto; box-sizing: border-box; }
+
+.app-header { background: var(--bg-panel); padding: 12px 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+.header-inner { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; max-width: 800px; margin: 0 auto; }
+.logo-img { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border); }
+.site-title { text-align: center; font-weight: 800; font-size: clamp(1.1rem, 5vw, 1.6rem); color: #fff; text-transform: uppercase; }
+
+/* TITRES ET CENTRAGE */
+.section-title { width: 100%; text-align: center; font-size: 1.1rem; margin: 20px 0 15px; color: #fff; display: block; }
+.warning-msg { text-align: center; margin-top: 15px; color: var(--danger); font-weight: bold; }
+
+/* BOUTONS AVEC ANIMATION */
+.city-btn-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; width: 100%; }
+.city-btn { padding: 10px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); color: white; cursor: pointer; transition: 0.2s; text-transform: capitalize; }
+.city-btn.active { background: var(--bg-btn); border-color: #00c3ff; transform: scale(1.05); }
+
+.city-appear { opacity: 0; transform: translateY(10px); animation: slideUp 0.3s ease forwards; }
+@keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+/* RECHERCHE */
+.search-section { margin: 25px 0; width: 100%; }
+.search-wrapper { position: relative; width: 100%; max-width: 450px; margin: 0 auto; display: flex; align-items: center; }
+.live-search-input { width: 100%; padding: 14px 45px 14px 15px; border-radius: 10px; background: var(--bg-input); border: 2px solid var(--border); color: white; font-size: 1rem; box-sizing: border-box; outline: none; }
+.clear-search-btn { position: absolute; right: 12px; background: #444; border: none; color: #fff; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 12px; }
+.live-search-results { width: 100%; max-width: 450px; background: var(--bg-panel); border-radius: 0 0 10px 10px; max-height: 250px; overflow-y: auto; border: 1px solid var(--border); margin: 0 auto; display: none; }
+
+/* MICRO ET STATUS */
+.voice-zone { display: flex; flex-direction: column; align-items: center; margin: 30px 0; gap: 10px; width: 100%; }
+.voice-btn { width: 80px; height: 80px; font-size: 2.5rem; border-radius: 50%; border: none; background: var(--bg-btn); color: white; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; }
+.voice-btn.listening { background: var(--success); animation: pulse 1.2s infinite; }
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 204, 68, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(0, 204, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 204, 68, 0); }
 }
+.status-text { font-weight: bold; color: var(--bg-btn); font-size: 0.95rem; text-align: center; min-height: 1.2em; }
 
-.app-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+/* MODAL VOCAL */
+.voice-confirm-modal { background: #222; border: 1px solid #444; border-radius: 12px; margin: 20px auto; padding: 20px; width: 100%; max-width: 400px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+.voice-confirm-msg { margin-bottom: 15px; font-weight: bold; text-align: center; color: #fff; }
+.voice-confirm-btns { display: flex; gap: 10px; width: 100%; justify-content: center; }
+.confirm-action-btn, .retry-action-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; color: white; font-weight: bold; cursor: pointer; }
+.confirm-action-btn { background: var(--bg-btn); }
+.retry-action-btn { background: var(--danger); }
 
-.main-content {
-  flex: 1;
-  padding: 15px;
-  overflow-x: hidden;
-}
+/* POPUP ET TABLEAUX */
+.popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; justify-content: center; align-items: center; padding: 15px; }
+.popup-window { background: var(--bg-panel); padding: 20px; border-radius: 15px; width: 100%; max-width: 500px; border: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; }
+.popup-title { color: var(--bg-btn); margin-top: 0; text-align: center; width: 100%; }
+.popup-scroll { width: 100%; max-height: 60vh; overflow-y: auto; margin: 15px 0; }
+.popup-table { width: 100%; border-collapse: collapse; }
+.popup-table td { padding: 12px 8px; border-bottom: 1px solid #333; text-align: left; color: #eee; font-size: 0.9rem; }
+.popup-table td:last-child { text-align: right; font-weight: 800; color: #00c3ff; font-size: 1.2rem; }
 
-/* =========================================================
-   🏷️ HEADER
-========================================================= */
-.app-header {
-  background: var(--bg-panel);
-  padding: 10px;
-  box-shadow: 0 0 10px black;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.header-inner {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-}
-
-.logo-img {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.site-title {
-  text-align: center;
-  font-size: 1.4rem;
-  font-weight: bold;
-}
-
-.mode-toggle {
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  border: none;
-  background: var(--bg-btn);
-  color: white;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: var(--transition);
-}
-
-.mode-toggle:hover {
-  background: var(--bg-btn-hover);
-  transform: scale(1.03);
-}
-
-/* =========================================================
-   📁 BOUTON FICHIER
-========================================================= */
-.file-btn {
-  display: inline-block;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  background: var(--bg-btn);
-  color: white;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: var(--transition);
-  margin-top: 10px;
-}
-
-.file-btn:hover {
-  background: var(--bg-btn-hover);
-  box-shadow: 0 0 10px rgba(0,150,255,0.5);
-  transform: scale(1.03);
-}
-
-/* =========================================================
-   🏙️ BRAS & VILLES
-========================================================= */
-.city-btn-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
-.city-btn {
-  padding: 6px 10px;
-  border-radius: var(--radius);
-  border: 2px solid var(--border-strong);
-  background: var(--bg-input);
-  color: var(--text-light);
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 0.85rem;
-  min-width: 70px;
-}
-
-.city-btn.active {
-  background: linear-gradient(135deg, #00c3ff, #0077ff);
-  border-color: #00c3ff;
-  color: white;
-  box-shadow: 0 0 10px rgba(0,195,255,0.6);
-  transform: scale(1.05);
-}
-
-/* =========================================================
-   🎤 MICRO
-========================================================= */
-.voice-btn {
-  display: block;
-  margin: 15px auto 0 auto;
-  padding: 15px;
-  font-size: 2rem;
-  border-radius: 50%;
-  border: none;
-  background: var(--bg-btn);
-  color: white;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-.voice-btn.listening {
-  background: #00cc44;
-  transform: scale(1.25);
-  box-shadow: 0 0 18px #00ff66;
-  animation: pulseMic 0.9s infinite ease-in-out;
-}
-
-@keyframes pulseMic {
-  0% { transform: scale(1.20); }
-  50% { transform: scale(1.32); }
-  100% { transform: scale(1.20); }
-}
-
-.status-text {
-  text-align: center;
-  margin-top: 10px;
-}
-
-/* =========================================================
-   🔊 CONFIRMATION VOCALE
-========================================================= */
-.voice-confirm-box {
-  display: none;
-  width: 80%;
-  background: var(--bg-input);
-  padding: 12px;
-  border-radius: var(--radius-lg);
-  margin-top: 10px;
-  /* 🎯 Centrage parfait */
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-
-.confirm-btn,
-.retry-btn {
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: var(--radius);
-  border: none;
-  cursor: pointer;
-  color: white;
-}
-
-.confirm-btn { background: #00c3ff; }
-.retry-btn { background: #444; }
-
-/* =========================================================
-   ✍️ MODE MANUEL
-========================================================= */
-.manual-inputs {
-  margin-top: 10px;
-  text-align: center;
-}
-
-.manual-inputs input {
-  padding: 8px;
-  width: 80%;
-  margin-bottom: 10px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-strong);
-  background: var(--bg-input);
-  color: var(--text-light);
-}
-
-.manual-btn {
-  padding: 10px 20px;
-  border-radius: var(--radius);
-  border: none;
-  background: var(--bg-btn);
-  color: white;
-  cursor: pointer;
-}
-
-/* =========================================================
-   🔍 RECHERCHE LIVE (CHAMP & TABLEAU INDÉPENDANTS)
-========================================================= */
-
-/* Champ de recherche : largeur indépendante */
-.search-wrapper {
-  width: 320px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.live-search-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-strong);
-  background: var(--bg-input);
-  color: white;
-  font-size: 0.95rem;
-}
-
-/* Bouton effacer */
-.clear-search-btn {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: #444;
-  border: none;
-  color: white;
-  font-size: 1rem;
-  padding: 4px 8px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  display: none;
-}
-
-.clear-search-btn:hover {
-  background: #666;
-}
-
-/* Tableau de résultats : largeur indépendante */
-.live-search-results {
-  width: 420px !important;
-  max-width: 420px !important;
-  margin: 10px auto 0 auto;
-  background: var(--bg-panel);
-  padding: 10px;
-  border-radius: var(--radius);
-  max-height: 250px;
-  overflow-y: auto;
-}
-
-.live-search-results table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: fixed;
-}
-
-.live-search-results th,
-.live-search-results td {
-  padding: 6px;
-  border-bottom: 1px solid var(--border);
-  word-wrap: break-word;
-  text-align: center;
-}
-
-/* =========================================================
-   📊 TABLEAU APERÇU
-========================================================= */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px;
-}
-
-th, td {
-  padding: 8px;
-  border-bottom: 1px solid var(--border);
-}
-
-/* =========================================================
-   🪟 POPUP
-========================================================= */
-.popup-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-popup);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.popup-window {
-  background: var(--bg-panel);
-  padding: 20px;
-  border-radius: var(--radius-lg);
-  width: 85%;
-  max-width: 400px;
-  box-shadow: 0 0 20px black;
-  text-align: center;
-  animation: popupFade 0.25s ease-out;
-}
-
-@keyframes popupFade {
-  from { transform: scale(0.8); opacity: 0; }
-  to   { transform: scale(1); opacity: 1; }
-}
-
-.popup-close {
-  margin-top: 15px;
-  padding: 10px 20px;
-  background: var(--bg-btn);
-  border: none;
-  border-radius: var(--radius);
-  color: white;
-  cursor: pointer;
-}
-
-/* =========================================================
-   🦶 FOOTER
-========================================================= */
-.app-footer {
-  text-align: center;
-  padding: 20px;
-  background: var(--bg-panel);
-  margin-top: auto;
-}
-
-/* =========================================================
-   📱 RESPONSIVE
-========================================================= */
-@media (max-width: 600px) {
-  h2 { font-size: 1.2rem; }
-
-  .voice-btn {
-    padding: 12px;
-    font-size: 1.8rem;
-  }
-
-  table th, table td {
-    padding: 6px;
-    font-size: 0.8rem;
-  }
-}
-
-/* 🔠 Forcer les résultats en MAJUSCULE (popup + recherche live) */
-.live-search-results table,
-.live-search-results td,
-.live-search-results th,
-.popup-window table,
-.popup-window td,
-.popup-window th {
-    text-transform: uppercase;
-}
-
-/* 🔧 Réduction de la colonne NUMÉRO dans les résultats manuels */ .live-search-results table th:nth-child(3),
-.live-search-results table td:nth-child(3) 
-{ width: 70px !important;
-   /* ← ajuste ici la largeur souhaitée */
-   max-width: 70px !important; text-align: center; }
-
-.clear-search-btn:hover {
-    background: #e05f5f;         /* rouge un peu plus clair au survol */
-}
-
-/* 🎯 Centrage parfait du champ de saisie */
-.search-wrapper {
-    width: 320px;                 /* largeur du champ */
-    margin-left: auto;
-    margin-right: auto;
-    position: relative;
-    display: flex;
-    justify-content: center;      /* centre le champ */
-}
-
-/* Le champ lui-même */
-.live-search-input {
-    width: 100%;
-    margin: 0 auto;
-    display: block;
-}
-
- /* 🔴 Bouton effacer : rouge doux + position plus à droite */
-/* Bouton effacer : ne doit PAS décaler le champ */
-.clear-search-btn {
-    position: absolute;
-    right: 4px;                  /* collé à droite sans pousser le champ */
-    top: 50%;
-    transform: translateY(-50%);
-    background: #cc4b4b;
-    border: none;
-    color: white;
-    font-size: 0.9rem;
-    padding: 4px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    display: none;
-    transition: 0.2s ease;
-}
-
-/* 📱 Empêcher le débordement du tableau sur smartphone */
-.live-search-results {
-    width: 100% !important;          /* s'adapte à l'écran */
-    max-width: 420px;                /* limite propre */
-    margin: 10px auto 0 auto;
-    overflow-x: hidden;              /* empêche le débordement horizontal */
-    box-sizing: border-box;          /* évite les dépassements liés au padding */
-}
-
-/* Le tableau respecte la largeur du conteneur */
-.live-search-results table {
-    width: 100% !important;
-    table-layout: fixed;
-}
-
-/* Colonnes compactes pour éviter l'étirement */
-.live-search-results th,
-.live-search-results td {
-    word-wrap: break-word;
-    white-space: normal;
-    padding: 6px;
-}
-
-/* 🅰️ Première lettre en majuscule pour BRAS + VILLES */
-.city-btn {
-    text-transform: capitalize !important;
-}
-
-
-
-
-
-
-
-
+/* ADMIN */
+.table-container { background: #161616; border-radius: 10px; overflow-x: auto; border: 1px solid var(--border); max-height: 50vh; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; text-transform: uppercase; font-size: 0.75rem; color: #fff; }
+th { background: #222; padding: 12px; color: var(--bg-btn); text-align: left; position: sticky; top: 0; }
+td { padding: 10px; border-bottom: 1px solid #222; }
+.admin-actions { display: flex; gap: 10px; margin-bottom: 15px; }
+.file-btn, .danger-btn { flex: 1; text-align: center; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; font-size: 0.8rem; color: white; }
+.file-btn { background: var(--bg-btn); }
+.danger-btn { background: var(--danger); }
+.mode-toggle { padding: 12px 30px; border-radius: 8px; border: none; background: var(--bg-btn); color: white; cursor: pointer; font-weight: bold; min-width: 120px; }
+.app-footer { text-align: center; padding: 20px; font-size: 0.75rem; color: #555; }
