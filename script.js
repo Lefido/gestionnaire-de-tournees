@@ -25,7 +25,7 @@ function playBeep() {
 
 function vibrateOnClick() {
     if (navigator.vibrate) {
-        navigator.vibrate(100); // Vibration de 100ms
+        navigator.vibrate(50); // Vibration douce de 50ms
     }
 }
 
