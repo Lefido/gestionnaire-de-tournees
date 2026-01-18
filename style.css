@@ -332,15 +332,18 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.85);
   z-index: 1000;
-  padding: 15px;
   display: none;
 }
-.popup-overlay:not(.hidden) { display: flex; justify-content: center; align-items: center; }
+.popup-overlay:not(.hidden) { display: block; }
 .popup-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background: var(--bg-panel);
   padding: 20px;
   border-radius: 15px;
-  width: 100%;
+  width: auto;
   max-width: 500px;
   border: 1px solid var(--border);
   display: flex;
@@ -363,10 +366,13 @@ body {
   max-height: 40vh;
   overflow-y: auto;
   margin: 15px 0;
+  display: flex;
+  justify-content: center;
 }
 
 .popup-table {
-  width: 100%;
+  width: fit-content;
+  margin: 0 auto;
   border-collapse: collapse;
 }
 .popup-table td {
