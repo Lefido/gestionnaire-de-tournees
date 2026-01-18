@@ -30,7 +30,7 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  background: var(--bg-dark);
+  background: var(--bg-dark) url('fond.png') center/cover no-repeat;
   color: var(--text-light);
   font-family: sans-serif;
   overflow-x: hidden;
@@ -401,7 +401,7 @@ body {
 
 /* PANNEAU ADMIN */
 .table-container {
-  background: #161616;
+  background: rgba(22, 22, 22, 0.7);
   border-radius: 10px;
   overflow: auto;
   border: 1px solid var(--border);
