@@ -102,6 +102,7 @@ body {
   flex: 1;
   padding: 15px;
   padding-top: 80px;
+  padding-bottom: 80px; /* Espace pour le footer fixe */
   width: 100%;
   max-width: 650px;
   margin: 0 auto;
@@ -477,6 +478,10 @@ td {
   padding: 20px;
   font-size: 0.75rem;
   color: white;
-  position: sticky;
+  position: fixed;
   bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-dark);
+  z-index: 100;
 }
