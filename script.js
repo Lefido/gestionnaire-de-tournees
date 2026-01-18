@@ -30,21 +30,89 @@ window.addEventListener("DOMContentLoaded", () => {
         refreshUI(); 
     }
     checkDataWarning();
+    document.getElementById("titleVille").style.display = "none";
 
     // AUTO-SCROLL : Garder l'input en haut de l'écran quand le clavier sort
     const searchInput = document.getElementById("liveSearchInput");
     const searchContainer = document.getElementById("liveSearchContainer");
 
     searchInput.addEventListener("focus", () => {
-        setTimeout(() => {
-            searchContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 300);
+        searchInput.classList.add('fixed-input');
+        const results = document.getElementById('liveSearchResults');
+        results.style.position = 'fixed';
+        results.style.top = '130px';
+        results.style.left = '50%';
+        results.style.transform = 'translateX(-50%)';
+        results.style.width = searchInput.offsetWidth + 'px';
+        results.style.zIndex = '1000';
+        results.style.background = 'var(--bg-panel)';
+        results.style.borderRadius = '8px';
+        results.style.maxHeight = '60vh';
+        results.style.overflowY = 'auto';
+        const clearBtn = document.getElementById('clearSearchBtn');
+        clearBtn.style.position = 'fixed';
+        clearBtn.style.top = (80 + searchInput.offsetHeight / 2 - 12) + 'px';
+        clearBtn.style.right = 'calc(50% - ' + (searchInput.offsetWidth / 2) + 'px + 12px)';
+        clearBtn.style.zIndex = '102';
     });
+
+    searchInput.addEventListener("blur", () => {
+        searchInput.classList.remove('fixed-input');
+        searchInput.value = '';
+        const results = document.getElementById('liveSearchResults');
+        results.innerHTML = '';
+        results.style.display = 'none';
+        results.style.position = '';
+        results.style.top = '';
+        results.style.left = '';
+        results.style.transform = '';
+        results.style.width = '';
+        results.style.zIndex = '';
+        results.style.background = '';
+        results.style.borderRadius = '';
+        results.style.maxHeight = '';
+        results.style.overflowY = '';
+        const clearBtn = document.getElementById('clearSearchBtn');
+        clearBtn.style.position = '';
+        clearBtn.style.top = '';
+        clearBtn.style.right = '';
+        clearBtn.style.zIndex = '';
+    });
+
+    // Vérification disponibilité reconnaissance vocale et feedback UI
+    const voiceBtn = document.getElementById("voiceBtn");
+    const statusText = document.getElementById("statusText");
+    if (!recognition) {
+        if (voiceBtn) {
+            voiceBtn.disabled = true;
+            voiceBtn.setAttribute('aria-disabled', 'true');
+        }
+        if (statusText) statusText.textContent = "Commande vocale non disponible";
+    } else {
+        if (statusText && statusText.textContent.trim() === '') statusText.textContent = "Prêt.";
+    }
+    // Masquer explicitement la boîte de confirmation vocale au chargement
+    const voiceConfirmBox = document.getElementById("voiceConfirmBox");
+    if (voiceConfirmBox) { voiceConfirmBox.classList.add('hidden'); voiceConfirmBox.style.display = 'none'; }
+    // Masquer la popup vocale au chargement
+    const voicePopupOverlay = document.getElementById("voicePopupOverlay");
+    if (voicePopupOverlay) { voicePopupOverlay.classList.add('hidden'); voicePopupOverlay.style.display = 'none'; }
 });
 
 function checkDataWarning() {
     const warning = document.getElementById("noFileWarning");
     if (warning) warning.style.display = (excelData.length > 0) ? "none" : "block";
+    
+    const brasTitle = document.querySelector('#userPanel h2:first-of-type');
+    const brasContainer = document.getElementById('brasBtnContainer');
+    const searchContainer = document.getElementById('liveSearchContainer');
+    const voiceZone = document.querySelector('.voice-zone');
+    const hasData = excelData.length > 0;
+    const hasSelected = selectedBras !== "";
+    if (brasTitle) brasTitle.style.display = hasData ? "block" : "none";
+    if (brasContainer) brasContainer.style.display = hasData ? "flex" : "none";
+    if (searchContainer) searchContainer.style.display = (hasData && hasSelected) ? "block" : "none";
+    if (voiceZone) voiceZone.style.display = (hasData && hasSelected) ? "flex" : "none";
 }
 
 // Importation Excel
@@ -74,7 +142,7 @@ function refreshUI() {
     const tbody = document.getElementById("adminTableBody");
     if (tbody) {
         tbody.innerHTML = "";
-        excelData.slice(0, 100).forEach(row => { // Limite à 100 pour la performance
+        excelData.forEach(row => {
             const tr = document.createElement("tr");
             tr.innerHTML = `<td>${row.BRAS}</td><td>${row.Ville}</td><td>${row.Adresse}</td><td>${row.Numero}</td>`;
             tbody.appendChild(tr);
@@ -125,6 +193,7 @@ function selectBras(bras, btn) {
         cityContainer.appendChild(vBtn);
     });
     document.getElementById("liveSearchContainer").style.display = "block";
+    document.querySelector('.voice-zone').style.display = "flex";
 }
 
 // Recherche Live
@@ -166,16 +235,35 @@ if (recognition) {
     document.getElementById("voiceBtn").onclick = () => {
         if (!selectedBras) { alert("Sélectionnez d'abord un BRAS"); return; }
         playBeep();
-        recognition.start();
-        document.getElementById("voiceBtn").classList.add("listening");
-        document.getElementById("statusText").textContent = "J'écoute...";
+        try {
+            recognition.start();
+            document.getElementById("voiceBtn").classList.add("listening");
+            document.getElementById("statusText").textContent = "J'écoute...";
+        } catch (err) {
+            console.error('Erreur démarrage reconnaissance vocale:', err);
+            alert('Impossible de démarrer la reconnaissance vocale. Vérifiez les permissions du micro et le contexte (HTTPS).');
+            document.getElementById("statusText").textContent = "Erreur micro";
+        }
     };
 
     recognition.onresult = (e) => {
-        const transcript = e.results[0][0].transcript.toLowerCase();
-        lastRecognized = transcript.split(" ").pop(); // Prend le dernier mot
+        const transcript = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript) ? e.results[0][0].transcript.toLowerCase() : '';
+        lastRecognized = transcript ? transcript.split(" ").pop() : '' ; // Prend le dernier mot
         document.getElementById("voiceConfirmText").textContent = `Chercher "${lastRecognized}" ?`;
-        document.getElementById("voiceConfirmBox").style.display = "flex";
+        const box = document.getElementById("voicePopupOverlay");
+        if (box) { box.classList.remove('hidden'); box.style.display = 'flex'; }
+    };
+
+    recognition.onerror = (evt) => {
+        console.error('Speech recognition error', evt);
+        document.getElementById("voiceBtn").classList.remove("listening");
+        document.getElementById("statusText").textContent = "Erreur reconnaissance";
+        alert('Erreur reconnaissance vocale : ' + (evt.error || 'inconnue'));
+    };
+
+    recognition.onnomatch = () => {
+        document.getElementById("voiceBtn").classList.remove("listening");
+        document.getElementById("statusText").textContent = "Aucun résultat";
     };
 
     recognition.onend = () => {
@@ -202,13 +290,21 @@ document.getElementById("confirmBtn").onclick = () => {
     } else { 
         alert("Aucun résultat pour : " + lastRecognized); 
     }
-    document.getElementById("voiceConfirmBox").style.display = "none";
+    const vBox = document.getElementById("voicePopupOverlay");
+    if (vBox) { vBox.classList.add('hidden'); vBox.style.display = 'none'; }
 };
 
 // Interface Modals & Panels
 document.getElementById("retryBtn").onclick = () => {
-    document.getElementById("voiceConfirmBox").style.display = "none";
+    const vBox2 = document.getElementById("voicePopupOverlay");
+    if (vBox2) { vBox2.classList.add('hidden'); vBox2.style.display = 'none'; }
     document.getElementById("voiceBtn").click();
+};
+
+document.getElementById("cancelBtn").onclick = () => {
+    const vBox3 = document.getElementById("voicePopupOverlay");
+    if (vBox3) { vBox3.classList.add('hidden'); vBox3.style.display = 'none'; }
+    document.getElementById("statusText").textContent = "Annulé.";
 };
 
 document.getElementById("popupClose").onclick = () => { 
@@ -217,10 +313,17 @@ document.getElementById("popupClose").onclick = () => {
 
 document.getElementById("modeToggle").onclick = function() {
     const admin = document.getElementById("adminPanel"), user = document.getElementById("userPanel");
-    const isUser = admin.style.display === "none";
-    admin.style.display = isUser ? "block" : "none"; 
-    user.style.display = isUser ? "none" : "block";
-    this.textContent = isUser ? "Accueil" : "Paramètres";
+    const adminHidden = admin.classList.contains('hidden');
+    if (adminHidden) {
+        admin.classList.remove('hidden'); admin.style.display = 'block';
+        user.classList.add('hidden'); user.style.display = 'none';
+        this.textContent = 'Accueil';
+    } else {
+        admin.classList.add('hidden'); admin.style.display = 'none';
+        user.classList.remove('hidden'); user.style.display = 'block';
+        document.getElementById("titleVille").style.display = "none";
+        this.textContent = 'Paramètres';
+    }
 };
 
 document.getElementById("clearStorageBtn").onclick = () => { 

@@ -2,9 +2,13 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Assistant Tournées — outil d'aide à la gestion et à la recherche d'adresses pour vos tournées.">
     <link rel="icon" type="image/png" href="snipers.png">
     <title>Assistant Tournées</title>
+    <meta property="og:title" content="Assistant Tournées">
+    <meta property="og:description" content="Assistant Tournées — outil d'aide à la gestion et à la recherche d'adresses pour vos tournées.">
+    <meta property="og:type" content="website">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,9 +16,9 @@
 <div class="app-container">
     <header class="app-header">
         <div class="header-inner">
-            <div class="logo"><img src="snipers.png" class="logo-img" alt="Logo"></div>
-            <div class="site-title">Assistant</div>
-            <button id="modeToggle" class="mode-toggle">Paramètres</button>
+            <div class="logo"><img src="snipers.png" class="logo-img" alt="Logo Assistant Tournées" loading="lazy"></div>
+            <h1 class="site-title">Assistant Tournées</h1>
+            <button id="modeToggle" class="mode-toggle" aria-label="Paramètres">Paramètres</button>
         </div>
     </header>
 
@@ -23,44 +27,38 @@
             <h2 class="section-title">Sélectionnez un BRAS</h2>
             <div id="brasBtnContainer" class="city-btn-container"></div>
 
-            <h2 id="titleVille" class="section-title" style="display:none; margin-top:20px;">Sélectionnez une ville (optionnel)</h2>
+            <h2 id="titleVille" class="section-title mt-20 hidden">Sélectionnez une ville (optionnel)</h2>
             <div id="cityBtnContainer" class="city-btn-container"></div>
 
-            <div id="liveSearchContainer" class="search-section" style="display:none;">
+            <div id="liveSearchContainer" class="search-section">
                 <div class="search-wrapper">
-                    <input type="text" id="liveSearchInput" placeholder="Rechercher une adresse…" class="live-search-input" autocomplete="off">
-                    <button id="clearSearchBtn" class="clear-search-btn">✖</button>
+                    <label for="liveSearchInput" class="sr-only">Rechercher une adresse</label>
+                    <input type="text" id="liveSearchInput" placeholder="Rechercher une adresse…" class="live-search-input" autocomplete="off" aria-label="Rechercher une adresse">
+                    <button id="clearSearchBtn" class="clear-search-btn" aria-label="Effacer la recherche">✖</button>
                 </div>
-                <div id="liveSearchResults" class="live-search-results"></div>
+                <div id="liveSearchResults" class="live-search-results" aria-live="polite" role="list"></div>
             </div>
 
             <div class="voice-zone">
-                <button id="voiceBtn" class="voice-btn">🎤</button>
-                <div id="statusText" class="status-text">Prêt.</div>
-            </div>
-
-            <div id="voiceConfirmBox" class="voice-confirm-modal" style="display:none;">
-                <div id="voiceConfirmText" class="voice-confirm-msg"></div>
-                <div class="voice-confirm-btns">
-                    <button id="confirmBtn" class="confirm-action-btn">Confirmer</button>
-                    <button id="retryBtn" class="retry-action-btn">Réessayer</button>
-                </div>
+                <button id="voiceBtn" class="voice-btn" aria-label="Activer la recherche vocale">🎤</button>
+                <div id="statusText" class="status-text" role="status" aria-live="polite">Prêt.</div>
             </div>
             
             <div id="noFileWarning" class="warning-msg">Aucun fichier chargé. Allez dans Paramètres.</div>
         </section>
 
-        <section id="adminPanel" style="display:none;">
+        <section id="adminPanel" class="hidden">
             <h2 class="section-title">Gestion des données</h2>
             <div class="admin-actions">
-                <label for="excelFile" class="file-btn">📥 Importer Excel</label>
+                <label for="excelFile" class="file-btn">Import Excel</label>
                 <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;">
-                <button id="clearStorageBtn" class="danger-btn">⚠️ Effacer tout</button>
+                <button id="clearStorageBtn" class="danger-btn">⚠️ Supprimer le fichier importé</button>
             </div>
             <div class="table-container">
                 <table>
+                    <caption>Liste des adresses importées</caption>
                     <thead>
-                        <tr><th>BRAS</th><th>Ville</th><th>Adresse</th><th>N°</th></tr>
+                        <tr><th scope="col">BRAS</th><th scope="col">Ville</th><th scope="col">Adresse</th><th scope="col">N°</th></tr>
                     </thead>
                     <tbody id="adminTableBody"></tbody>
                 </table>
@@ -71,11 +69,22 @@
     <footer class="app-footer">Frederic Boussemart by @Lefido</footer>
 </div>
 
-<div id="popupOverlay" class="popup-overlay" style="display:none;">
+<div id="voicePopupOverlay" class="voice-popup-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="voiceConfirmText">
+    <div class="voice-popup-window">
+        <div id="voiceConfirmText" class="voice-confirm-msg"></div>
+        <div class="voice-confirm-btns">
+            <button id="confirmBtn" class="confirm-action-btn">Confirmer</button>
+            <button id="retryBtn" class="retry-action-btn">Réessayer</button>
+            <button id="cancelBtn" class="cancel-action-btn">Annuler</button>
+        </div>
+    </div>
+</div>
+
+<div id="popupOverlay" class="popup-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="popupTitle">
     <div class="popup-window">
-        <h3 class="popup-title">Résultats</h3>
+        <h3 id="popupTitle" class="popup-title">Résultats</h3>
         <div id="popupContent" class="popup-scroll"></div>
-        <button id="popupClose" class="mode-toggle">Fermer</button>
+        <button id="popupClose" class="mode-toggle" aria-label="Fermer la fenêtre">Fermer</button>
     </div>
 </div>
 
