@@ -25,12 +25,14 @@ function playBeep() {
 
 window.addEventListener("DOMContentLoaded", () => {
     const saved = localStorage.getItem("tourneeData");
-    if (saved) { 
-        excelData = JSON.parse(saved); 
-        refreshUI(); 
+    if (saved) {
+        excelData = JSON.parse(saved);
+        refreshUI();
     }
     checkDataWarning();
     document.getElementById("titleVille").style.display = "none";
+    positionVoiceZone();
+    window.addEventListener('resize', positionVoiceZone);
 
     // AUTO-SCROLL : Garder l'input en haut de l'écran quand le clavier sort
     const searchInput = document.getElementById("liveSearchInput");
@@ -194,6 +196,7 @@ function selectBras(bras, btn) {
     });
     document.getElementById("liveSearchContainer").style.display = "block";
     document.querySelector('.voice-zone').style.display = "flex";
+    positionVoiceZone();
 }
 
 // Recherche Live
@@ -326,8 +329,32 @@ document.getElementById("modeToggle").onclick = function() {
     }
 };
 
-document.getElementById("clearStorageBtn").onclick = () => { 
-    if(confirm("Voulez-vous vraiment effacer toutes les données chargées ?")) { 
-        localStorage.clear(); location.reload(); 
-    } 
+document.getElementById("clearStorageBtn").onclick = () => {
+    if(confirm("Voulez-vous vraiment effacer toutes les données chargées ?")) {
+        localStorage.clear(); location.reload();
+    }
 };
+
+function positionVoiceZone() {
+    const voiceZone = document.querySelector('.voice-zone');
+    const searchContainer = document.getElementById('liveSearchContainer');
+    const footer = document.querySelector('.app-footer');
+    if (!voiceZone || !searchContainer || !footer) return;
+
+    const searchRect = searchContainer.getBoundingClientRect();
+    const footerRect = footer.getBoundingClientRect();
+    const voiceZoneHeight = voiceZone.offsetHeight;
+
+    // Calculate the center position between search input and footer
+    const searchBottom = searchRect.bottom;
+    const footerTop = footerRect.top;
+    const availableSpace = footerTop - searchBottom;
+    const centerY = searchBottom + (availableSpace / 2) - (voiceZoneHeight / 2);
+
+    // Position the voice zone absolutely
+    voiceZone.style.position = 'absolute';
+    voiceZone.style.top = centerY + 'px';
+    voiceZone.style.left = '50%';
+    voiceZone.style.transform = 'translateX(-50%)';
+    voiceZone.style.zIndex = '10';
+}

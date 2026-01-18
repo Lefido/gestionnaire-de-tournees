@@ -476,5 +476,7 @@ td {
   text-align: center;
   padding: 20px;
   font-size: 0.75rem;
-  color: #555;
+  color: white;
+  position: sticky;
+  bottom: 0;
 }
