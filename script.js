@@ -337,7 +337,7 @@ document.getElementById("modeToggle").onclick = function() {
     } else {
         admin.classList.add('hidden'); admin.style.display = 'none';
         user.classList.remove('hidden'); user.style.display = 'block';
-        document.getElementById("titleVille").style.display = "none";
+        if (!selectedBras) document.getElementById("titleVille").style.display = "none";
         this.textContent = 'Paramètres';
     }
 };
