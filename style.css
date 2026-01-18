@@ -343,8 +343,7 @@ body {
   background: var(--bg-panel);
   padding: 20px;
   border-radius: 15px;
-  width: auto;
-  min-width: 400px;
+  width: calc(100vw - 40px);
   max-width: 500px;
   border: 1px solid var(--border);
   display: flex;
