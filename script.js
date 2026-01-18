@@ -167,14 +167,14 @@ function refreshUI() {
     const container = document.getElementById("brasBtnContainer"); 
     if (container) {
         container.innerHTML = "";
-        brasUniques.forEach((bras, index) => {
-            const btn = document.createElement("button"); 
-            btn.className = "city-btn city-appear"; 
-            btn.style.animationDelay = (index * 0.05) + "s";
-            btn.textContent = bras;
-            btn.onclick = () => selectBras(bras, btn); 
-            container.appendChild(btn);
-        });
+    brasUniques.forEach((bras, index) => {
+        const btn = document.createElement("button");
+        btn.className = "city-btn city-appear";
+        btn.style.animationDelay = (index * 0.05) + "s";
+        btn.textContent = bras;
+        btn.onclick = () => { selectBras(bras, btn); vibrateOnClick(); };
+        container.appendChild(btn);
+    });
     }
 }
 
@@ -202,6 +202,7 @@ function selectBras(bras, btn) {
             selectedCity = v;
             document.querySelectorAll("#cityBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
             vBtn.classList.add("active");
+            vibrateOnClick();
         };
         cityContainer.appendChild(vBtn);
     });
@@ -248,6 +249,7 @@ document.getElementById("clearSearchBtn").onclick = function() {
 if (recognition) {
     document.getElementById("voiceBtn").onclick = () => {
         if (!selectedBras) { alert("Sélectionnez d'abord un BRAS"); return; }
+        vibrateOnClick();
         playBeep();
         try {
             recognition.start();
@@ -255,7 +257,7 @@ if (recognition) {
             document.getElementById("statusText").textContent = "J'écoute...";
         } catch (err) {
             console.error('Erreur démarrage reconnaissance vocale:', err);
-            alert('Impossible de démarrer la reconnaissance vocale. Vérifiez les permissions du micro et le contexte (HTTPS).');
+            alert('Impossible de démarrage la reconnaissance vocale. Vérifiez les permissions du micro et le contexte (HTTPS).');
             document.getElementById("statusText").textContent = "Erreur micro";
         }
     };
