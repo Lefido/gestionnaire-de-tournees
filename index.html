@@ -13,14 +13,14 @@
     <header class="app-header">
         <div class="header-inner">
             <div class="logo"><img src="snipers.png" class="logo-img" alt="Logo"></div>
-            <div class="site-title">Assistant Tournées</div>
+            <div class="site-title">Assistant</div>
             <button id="modeToggle" class="mode-toggle">Paramètres</button>
         </div>
     </header>
 
     <main class="main-content">
         <section id="userPanel">
-            <h2 class="section-title">Sélectionnez un BRAS de distribution</h2>
+            <h2 class="section-title">Sélectionnez un BRAS</h2>
             <div id="brasBtnContainer" class="city-btn-container"></div>
 
             <h2 id="titleVille" class="section-title" style="display:none; margin-top:20px;">Sélectionnez une ville (optionnel)</h2>
@@ -28,7 +28,7 @@
 
             <div id="liveSearchContainer" class="search-section" style="display:none;">
                 <div class="search-wrapper">
-                    <input type="text" id="liveSearchInput" placeholder="Rechercher une adresse…" class="live-search-input">
+                    <input type="text" id="liveSearchInput" placeholder="Rechercher une adresse…" class="live-search-input" autocomplete="off">
                     <button id="clearSearchBtn" class="clear-search-btn">✖</button>
                 </div>
                 <div id="liveSearchResults" class="live-search-results"></div>
@@ -47,7 +47,7 @@
                 </div>
             </div>
             
-            <div id="noFileWarning" class="warning-msg">Aucun fichier chargé.</div>
+            <div id="noFileWarning" class="warning-msg">Aucun fichier chargé. Allez dans Paramètres.</div>
         </section>
 
         <section id="adminPanel" style="display:none;">
@@ -55,7 +55,7 @@
             <div class="admin-actions">
                 <label for="excelFile" class="file-btn">📥 Importer Excel</label>
                 <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;">
-                <button id="clearStorageBtn" class="danger-btn">⚠️ Effacer la mémoire</button>
+                <button id="clearStorageBtn" class="danger-btn">⚠️ Effacer tout</button>
             </div>
             <div class="table-container">
                 <table>
@@ -67,6 +67,7 @@
             </div>
         </section>
     </main>
+
     <footer class="app-footer">Frederic Boussemart by @Lefido</footer>
 </div>
 
