@@ -23,6 +23,12 @@ function playBeep() {
     } catch(e) {}
 }
 
+function vibrateOnClick() {
+    if (navigator.vibrate) {
+        navigator.vibrate(100); // Vibration de 100ms
+    }
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     const saved = localStorage.getItem("tourneeData");
     if (saved) {
@@ -99,6 +105,11 @@ window.addEventListener("DOMContentLoaded", () => {
     // Masquer la popup vocale au chargement
     const voicePopupOverlay = document.getElementById("voicePopupOverlay");
     if (voicePopupOverlay) { voicePopupOverlay.classList.add('hidden'); voicePopupOverlay.style.display = 'none'; }
+
+    // Ajouter vibration à tous les boutons
+    document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', vibrateOnClick);
+    });
 });
 
 function checkDataWarning() {
