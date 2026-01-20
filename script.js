@@ -110,6 +110,9 @@ window.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('button').forEach(btn => {
         btn.addEventListener('click', vibrateOnClick);
     });
+
+    // Ajouter vibration au bouton "Import Excel" (label)
+    document.querySelector('label[for="excelFile"]').addEventListener('click', vibrateOnClick);
 });
 
 function checkDataWarning() {
