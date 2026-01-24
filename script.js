@@ -220,6 +220,12 @@ function selectBras(bras, btn) {
         cityContainer.appendChild(vBtn);
     });
 
+    // If voiceBtn was in the container, append it back with city button styling
+    if (voiceBtnWasInContainer) {
+        voiceBtn.className = 'city-btn city-appear';
+        cityContainer.appendChild(voiceBtn);
+    }
+
     // Position the voice button just above the footer
     document.querySelector('.voice-zone').style.display = "flex";
     positionVoiceZone();
@@ -400,14 +406,15 @@ document.getElementById("modeToggle").onclick = function() {
         admin.classList.add('hidden'); admin.style.display = 'none';
         user.classList.remove('hidden'); user.style.display = 'block';
         if (!selectedBras) document.getElementById("titleVille").style.display = "none";
-        // Move microphone button to city container if a BRAS is selected
+        // Move microphone button back to voice-zone if a BRAS is selected
         if (selectedBras) {
             const voiceBtn = document.getElementById('voiceBtn');
-            const cityContainer = document.getElementById("cityBtnContainer");
-            if (voiceBtn && cityContainer && !cityContainer.contains(voiceBtn)) {
-                voiceBtn.className = 'city-btn city-appear';
-                cityContainer.appendChild(voiceBtn);
-                document.querySelector('.voice-zone').style.display = "none";
+            const voiceZone = document.querySelector('.voice-zone');
+            if (voiceBtn && voiceZone && !voiceZone.contains(voiceBtn)) {
+                voiceBtn.className = 'voice-btn';
+                voiceZone.appendChild(voiceBtn);
+                voiceZone.style.display = "flex";
+                positionVoiceZone();
             }
         }
         this.textContent = 'Paramètres';
