@@ -445,29 +445,54 @@ document.getElementById("clearStorageBtn").onclick = () => {
 };
 
 function parseAddressFromText(text) {
-    const lines = text.split('\n');
+    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
     let city = '';
     let street = '';
 
+    // Améliorer la regex pour les codes postaux (5 chiffres)
     const postalCodeRegex = /\b(\d{5})\b/;
-    const streetRegex = /\b(rue|boulevard|bd|avenue|av|place|pl|chemin|impasse|allee)\b/i;
+    // Étendre la regex pour les types de rues (ajouter plus de variations)
+    const streetRegex = /\b(rue|boulevard|bd|avenue|av|place|pl|chemin|impasse|allee|route|rt|voie|square|sq|cours|imp|passage|pass|quai|pont|carrefour|car|résidence|res|lotissement|lot|zone|zn|parc|prk)\b/i;
 
+    // Extraction de la ville : chercher après le code postal
     for (const line of lines) {
         const match = line.match(postalCodeRegex);
         if (match) {
-            city = line.substring(match.index + match[0].length).replace(/[^a-zA-Z\s-]/g, '').trim();
+            // Prendre le texte après le code postal, nettoyer et prendre les premiers mots
+            const afterCode = line.substring(match.index + match[0].length).replace(/[^a-zA-Z\s-]/g, '').trim();
+            const words = afterCode.split(/\s+/).filter(w => w.length > 1); // Filtrer les mots courts
+            city = words.slice(0, 3).join(' '); // Prendre jusqu'à 3 mots pour la ville
             if (city) break;
         }
     }
 
+    // Extraction de la rue : chercher les lignes avec des indicateurs de rue
     for (const line of lines) {
         if (streetRegex.test(line)) {
-            street = line.replace(/\d+/g, '').replace(streetRegex, '').replace(/[,.-]/g, '').trim();
+            // Nettoyer la ligne : enlever les chiffres au début, les types de rue, et les caractères spéciaux
+            let cleaned = line.replace(/^\d+\s*/, ''); // Enlever les numéros au début
+            cleaned = cleaned.replace(streetRegex, '').replace(/[,.-]/g, '').trim();
+            // Enlever les mots très courts et les mots communs
+            const words = cleaned.split(/\s+/).filter(w => w.length > 2 && !/\b(le|la|les|du|de|des|et|à|a|sur|chez|pour|avec)\b/i.test(w));
+            street = words.join(' ');
             if (street) break;
         }
     }
-    
-    const streetWords = street.split(' ');
+
+    // Si pas de rue trouvée, essayer de trouver une ligne qui ressemble à une adresse (contient des chiffres et des lettres)
+    if (!street) {
+        for (const line of lines) {
+            if (/\d/.test(line) && /[a-zA-Z]/.test(line) && !postalCodeRegex.test(line)) {
+                let cleaned = line.replace(/^\d+\s*/, '').replace(/[,.-]/g, '').trim();
+                const words = cleaned.split(/\s+/).filter(w => w.length > 2);
+                street = words.join(' ');
+                if (street) break;
+            }
+        }
+    }
+
+    // Extraire le dernier mot significatif de la rue
+    const streetWords = street.split(/\s+/).filter(w => w.length > 2 && !/\b(le|la|les|du|de|des|et|à|a|sur|chez|pour|avec)\b/i.test(w));
     const lastStreetWord = streetWords.length > 0 ? streetWords[streetWords.length - 1] : '';
 
     return {
