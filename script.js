@@ -595,6 +595,13 @@ if (cameraButton && cameraPopup && cameraPopupClose) {
             if(cameraStatus) cameraStatus.textContent = "Analyse de l'image...";
             
             try {
+                const rectangle = {
+                    top: videoFeed.videoHeight * 0.3,
+                    left: videoFeed.videoWidth * 0.2,
+                    width: videoFeed.videoWidth * 0.6,
+                    height: videoFeed.videoHeight * 0.4
+                };
+
                 const result = await Tesseract.recognize(
                     captureCanvas,
                     'fra', // Language is French
@@ -604,7 +611,8 @@ if (cameraButton && cameraPopup && cameraPopupClose) {
                             if(cameraStatus && m.status === 'recognizing text') {
                                 cameraStatus.textContent = `Analyse... ${Math.round(m.progress * 100)}%`;
                             }
-                        } 
+                        },
+                        rectangle: rectangle
                     }
                 );
                 
