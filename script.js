@@ -488,7 +488,7 @@ function searchFromOcr(parsedAddress) {
     let filtered = excelData.filter(r =>
         r.BRAS === selectedBras &&
         (!selectedCity || r.Ville === selectedCity) &&
-        (normalize(r.Adresse).includes(val) || normalize(r.Ville).includes(val))
+        normalize(r.Adresse).includes(val)
     );
 
     if (parsedAddress.city) {
@@ -596,10 +596,10 @@ if (cameraButton && cameraPopup && cameraPopupClose) {
             
             try {
                 const rectangle = {
-                    top: videoFeed.videoHeight * 0.3,
-                    left: videoFeed.videoWidth * 0.2,
-                    width: videoFeed.videoWidth * 0.6,
-                    height: videoFeed.videoHeight * 0.4
+                    top: videoFeed.videoHeight * 0.2,
+                    left: videoFeed.videoWidth * 0.1,
+                    width: videoFeed.videoWidth * 0.8,
+                    height: videoFeed.videoHeight * 0.6
                 };
 
                 const result = await Tesseract.recognize(
