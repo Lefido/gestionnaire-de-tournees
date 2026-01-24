@@ -10,7 +10,7 @@
 }
 
 /* Utility classes */
-.hidden { display: none; }
+.hidden { display: none !important; }
 .sr-only {
   position: absolute !important;
   width: 1px !important;
@@ -222,8 +222,13 @@ body {
   flex-direction: column;
   align-items: center;
   margin: 20px 0;
-  gap: 10px;
   width: 100%;
+}
+
+.button-row {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
 }
 .voice-btn {
   width: 56px;
@@ -259,6 +264,7 @@ body {
   color: var(--bg-btn);
   font-size: 0.9rem;
   text-align: center;
+  margin-top: 10px;
 }
 
 /* MODAL DE CONFIRMATION VOCALE (REFIXÉ) */
@@ -319,9 +325,10 @@ body {
   background: rgba(0, 0, 0, 0.85);
   z-index: 1000;
   padding: 15px;
-  display: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.voice-popup-overlay:not(.hidden) { display: flex; justify-content: center; align-items: center; }
 .voice-popup-window {
   background: var(--bg-panel);
   padding: 20px;
@@ -340,9 +347,8 @@ body {
   inset: 0;
   background: rgba(0, 0, 0, 0.85);
   z-index: 1000;
-  display: none;
+  display: block;
 }
-.popup-overlay:not(.hidden) { display: block; }
 .popup-window {
   position: absolute;
   top: 50%;
@@ -458,6 +464,70 @@ td {
 }
 .danger-btn {
   background: var(--danger);
+}
+
+/* TOGGLE ROW */
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.toggle-text {
+  font-size: 1rem;
+  color: white;
+}
+
+/* TOGGLE SWITCH */
+.toggle-label {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: white;
+  user-select: none;
+}
+
+.toggle-label input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .toggle-slider {
+  background-color: var(--bg-btn);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
 }
 
 /* DIVERS */

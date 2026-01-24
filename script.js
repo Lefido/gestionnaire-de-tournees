@@ -40,6 +40,24 @@ window.addEventListener("DOMContentLoaded", () => {
     positionVoiceZone();
     window.addEventListener('resize', positionVoiceZone);
 
+    // Handle camera toggle and persist state
+    const cameraToggle = document.getElementById("cameraToggle");
+    const cameraBtn = document.getElementById("cameraBtn");
+
+    if (cameraToggle && cameraBtn) {
+        // Load and apply initial state from localStorage
+        const cameraEnabled = localStorage.getItem("cameraEnabled") === 'true';
+        cameraToggle.checked = cameraEnabled;
+        cameraBtn.classList.toggle('hidden', !cameraEnabled);
+
+        // Handle change and save state
+        cameraToggle.addEventListener("change", () => {
+            const isChecked = cameraToggle.checked;
+            cameraBtn.classList.toggle('hidden', !isChecked);
+            localStorage.setItem("cameraEnabled", isChecked);
+        });
+    }
+
     // AUTO-SCROLL : Garder l'input en haut de l'écran quand le clavier sort
     const searchInput = document.getElementById("liveSearchInput");
     const searchContainer = document.getElementById("liveSearchContainer");
@@ -101,10 +119,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     // Masquer explicitement la boîte de confirmation vocale au chargement
     const voiceConfirmBox = document.getElementById("voiceConfirmBox");
-    if (voiceConfirmBox) { voiceConfirmBox.classList.add('hidden'); voiceConfirmBox.style.display = 'none'; }
+    if (voiceConfirmBox) { voiceConfirmBox.classList.add('hidden'); }
     // Masquer la popup vocale au chargement
     const voicePopupOverlay = document.getElementById("voicePopupOverlay");
-    if (voicePopupOverlay) { voicePopupOverlay.classList.add('hidden'); voicePopupOverlay.style.display = 'none'; }
+    if (voicePopupOverlay) { voicePopupOverlay.classList.add('hidden'); }
 
     // Ajouter vibration à tous les boutons
     document.querySelectorAll('button').forEach(btn => {
@@ -306,7 +324,7 @@ if (recognition) {
         lastRecognized = transcript ? transcript.split(" ").pop() : '' ; // Prend le dernier mot
         document.getElementById("voiceConfirmText").textContent = `Chercher "${lastRecognized}" ?`;
         const box = document.getElementById("voicePopupOverlay");
-        if (box) { box.classList.remove('hidden'); box.style.display = 'flex'; }
+        if (box) { box.classList.remove('hidden'); }
         // Keep the voice button in its container, do not move it
     };
 
@@ -361,14 +379,13 @@ document.getElementById("confirmBtn").onclick = () => {
         } else {
             document.getElementById("popupTitle").innerHTML = "Résultats";
         }
-        document.getElementById("popupOverlay").style.display = "flex";
+        document.getElementById("popupOverlay").classList.remove("hidden");
     } else {
         alert("Aucun résultat pour : " + lastRecognized);
     }
     const vBox = document.getElementById("voicePopupOverlay");
     if (vBox) {
         vBox.classList.add('hidden');
-        vBox.style.display = 'none';
         // Move voice button back to voice-zone
         const voiceBtn = document.getElementById('voiceBtn');
         const voiceZone = document.querySelector('.voice-zone');
@@ -381,18 +398,18 @@ document.getElementById("confirmBtn").onclick = () => {
 // Interface Modals & Panels
 document.getElementById("retryBtn").onclick = () => {
     const vBox2 = document.getElementById("voicePopupOverlay");
-    if (vBox2) { vBox2.classList.add('hidden'); vBox2.style.display = 'none'; }
+    if (vBox2) { vBox2.classList.add('hidden'); }
     document.getElementById("voiceBtn").click();
 };
 
 document.getElementById("cancelBtn").onclick = () => {
     const vBox3 = document.getElementById("voicePopupOverlay");
-    if (vBox3) { vBox3.classList.add('hidden'); vBox3.style.display = 'none'; }
+    if (vBox3) { vBox3.classList.add('hidden'); }
     document.getElementById("statusText").textContent = "Annulé.";
 };
 
 document.getElementById("popupClose").onclick = () => { 
-    document.getElementById("popupOverlay").style.display = "none"; 
+    document.getElementById("popupOverlay").classList.add("hidden"); 
 };
 
 document.getElementById("modeToggle").onclick = function() {

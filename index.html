@@ -41,7 +41,10 @@ e<!DOCTYPE html>
             <div id="cityBtnContainer" class="city-btn-container"></div>
 
             <div class="voice-zone">
-                <button id="voiceBtn" class="voice-btn" aria-label="Activer la recherche vocale">🎤</button>
+                <div class="button-row">
+                    <button id="voiceBtn" class="voice-btn" aria-label="Activer la recherche vocale">🎤</button>
+                    <button id="cameraBtn" class="voice-btn hidden" aria-label="Activer la caméra">📷</button>
+                </div>
                 <div id="statusText" class="status-text" role="status" aria-live="polite">Prêt.</div>
             </div>
             
@@ -50,6 +53,13 @@ e<!DOCTYPE html>
 
         <section id="adminPanel" class="hidden">
             <h2 class="section-title">Gestion des données</h2>
+            <div class="toggle-row">
+                <span class="toggle-text">Activer la caméra</span>
+                <label class="toggle-label">
+                    <input type="checkbox" id="cameraToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
             <div class="admin-actions">
                 <label for="excelFile" class="file-btn">Import Excel</label>
                 <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none;">
