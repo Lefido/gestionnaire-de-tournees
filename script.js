@@ -1,4 +1,4 @@
-let excelData = [], selectedBras = "", selectedCity = "", lastRecognized = "";
+let excelData = [], selectedBras = "", selectedCity = "", lastRecognized = "", cameraStream = null;
 
 // Initialisation reconnaissance vocale
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -443,6 +443,186 @@ document.getElementById("clearStorageBtn").onclick = () => {
         localStorage.clear(); location.reload();
     }
 };
+
+function parseAddressFromText(text) {
+    const lines = text.split('\n');
+    let city = '';
+    let street = '';
+
+    const postalCodeRegex = /\b(\d{5})\b/;
+    const streetRegex = /\b(rue|boulevard|bd|avenue|av|place|pl|chemin|impasse|allee)\b/i;
+
+    for (const line of lines) {
+        const match = line.match(postalCodeRegex);
+        if (match) {
+            city = line.substring(match.index + match[0].length).replace(/[^a-zA-Z\s-]/g, '').trim();
+            if (city) break;
+        }
+    }
+
+    for (const line of lines) {
+        if (streetRegex.test(line)) {
+            street = line.replace(/\d+/g, '').replace(streetRegex, '').replace(/[,.-]/g, '').trim();
+            if (street) break;
+        }
+    }
+    
+    const streetWords = street.split(' ');
+    const lastStreetWord = streetWords.length > 0 ? streetWords[streetWords.length - 1] : '';
+
+    return {
+        city: city,
+        street: street,
+        lastStreetWord: lastStreetWord
+    };
+}
+
+function searchFromOcr(parsedAddress) {
+    const searchTerm = parsedAddress.lastStreetWord || parsedAddress.street || parsedAddress.city;
+    if (!searchTerm) {
+        alert("Aucun terme de recherche valide n'a pu être extrait de l'image.");
+        return;
+    }
+
+    const val = normalize(searchTerm);
+    let filtered = excelData.filter(r =>
+        r.BRAS === selectedBras &&
+        (!selectedCity || r.Ville === selectedCity) &&
+        (normalize(r.Adresse).includes(val) || normalize(r.Ville).includes(val))
+    );
+
+    if (parsedAddress.city) {
+        const cityVal = normalize(parsedAddress.city);
+        const moreFiltered = filtered.filter(r => normalize(r.Ville).includes(cityVal));
+        if (moreFiltered.length > 0) {
+            filtered = moreFiltered;
+        }
+    }
+
+    if (filtered.length > 0) {
+        let html = `<table class="popup-table"><tbody>`;
+        filtered.forEach(r => {
+            html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`;
+        });
+        document.getElementById("popupContent").innerHTML = html + "</tbody></table>";
+        document.getElementById("popupTitle").textContent = "Résultats de la recherche image";
+        document.getElementById("popupOverlay").classList.remove("hidden");
+    } else {
+        alert("Aucun résultat pour : " + searchTerm);
+    }
+
+    cameraPopup.classList.add("hidden");
+    stopCamera();
+}
+
+// Camera Popup Logic
+const cameraPopup = document.getElementById("cameraPopupOverlay");
+const cameraButton = document.getElementById("cameraBtn");
+const cameraPopupClose = document.getElementById("cameraPopupClose");
+const videoFeed = document.getElementById("cameraFeed");
+const cameraStatus = document.getElementById("cameraStatus");
+
+async function startCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+    }
+    if(cameraStatus) cameraStatus.textContent = "Démarrage de la caméra...";
+    try {
+        const constraints = { 
+            video: { 
+                facingMode: 'environment' // Prioritize back camera
+            } 
+        };
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+        videoFeed.srcObject = cameraStream;
+        videoFeed.onloadedmetadata = () => {
+            if(cameraStatus) cameraStatus.textContent = "Prêt à capturer.";
+        };
+    } catch (err) {
+        console.error("Erreur caméra:", err);
+        if(cameraStatus) cameraStatus.textContent = "Erreur caméra. Vérifiez les permissions.";
+        // If environment camera fails, try default
+        try {
+            const anyCameraConstraints = { video: true };
+            cameraStream = await navigator.mediaDevices.getUserMedia(anyCameraConstraints);
+            videoFeed.srcObject = cameraStream;
+            videoFeed.onloadedmetadata = () => {
+                if(cameraStatus) cameraStatus.textContent = "Prêt à capturer.";
+            };
+        } catch (e) {
+            console.error("Erreur caméra (fallback):", e);
+            if(cameraStatus) cameraStatus.textContent = "Impossible d'accéder à la caméra.";
+        }
+    }
+}
+
+function stopCamera() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+        videoFeed.srcObject = null;
+    }
+}
+
+if (cameraButton && cameraPopup && cameraPopupClose) {
+    cameraButton.addEventListener("click", () => {
+        cameraPopup.classList.remove("hidden");
+        startCamera();
+    });
+
+    cameraPopupClose.addEventListener("click", () => {
+        cameraPopup.classList.add("hidden");
+        stopCamera();
+    });
+
+    const captureBtn = document.getElementById("captureBtn");
+    const captureCanvas = document.getElementById("captureCanvas");
+
+    if (captureBtn && captureCanvas) {
+        captureBtn.addEventListener('click', async () => {
+            if (!cameraStream) {
+                if(cameraStatus) cameraStatus.textContent = "Aucun flux caméra actif.";
+                return;
+            }
+
+            // --- Capture image to canvas ---
+            const context = captureCanvas.getContext('2d');
+            captureCanvas.width = videoFeed.videoWidth;
+            captureCanvas.height = videoFeed.videoHeight;
+            context.drawImage(videoFeed, 0, 0, videoFeed.videoWidth, videoFeed.videoHeight);
+            
+            // --- OCR with Tesseract ---
+            if(cameraStatus) cameraStatus.textContent = "Analyse de l'image...";
+            
+            try {
+                const result = await Tesseract.recognize(
+                    captureCanvas,
+                    'fra', // Language is French
+                    { 
+                        logger: m => {
+                            console.log(m);
+                            if(cameraStatus && m.status === 'recognizing text') {
+                                cameraStatus.textContent = `Analyse... ${Math.round(m.progress * 100)}%`;
+                            }
+                        } 
+                    }
+                );
+                
+                const recognizedText = result.data.text;
+                console.log('Texte reconnu:', recognizedText);
+
+                const parsedAddress = parseAddressFromText(recognizedText);
+                console.log('Adresse analysée:', parsedAddress);
+
+                searchFromOcr(parsedAddress);
+                
+            } catch (err) {
+                console.error("Erreur OCR:", err);
+                if(cameraStatus) cameraStatus.textContent = "Erreur lors de l'analyse.";
+            }
+        });
+    }
+}
 
 function positionVoiceZone() {
     const voiceZone = document.querySelector('.voice-zone');

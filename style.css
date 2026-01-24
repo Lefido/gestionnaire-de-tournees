@@ -553,3 +553,25 @@ input:checked + .toggle-slider:before {
   background: var(--bg-dark);
   z-index: 100;
 }
+
+/* CAMERA POPUP STYLES */
+.camera-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 15px 0;
+  position: relative;
+  border: 1px solid var(--border);
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#cameraFeed {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+#cameraPopupOverlay .popup-window {
+    gap: 15px;
+}
