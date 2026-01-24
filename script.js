@@ -143,7 +143,8 @@ document.getElementById("excelFile").addEventListener("change", function(e) {
             BRAS: String(row.BRAS || "").trim().toLowerCase(),
             Ville: String(row.Ville || "").trim().toLowerCase(),
             Adresse: String(row.Adresse || "").trim().toLowerCase(),
-            Numero: String(row["Numéro de tournée"] || row["Numéro"] || "").trim()
+            Numero: String(row["Numéro de tournée"] || row["Numéro"] || "").trim(),
+            TypeRecherche: String(row["Type Recherche"] || "").trim()
         }));
         localStorage.setItem("tourneeData", JSON.stringify(excelData));
         refreshUI();
@@ -195,10 +196,19 @@ function selectBras(bras, btn) {
     document.getElementById("titleVille").style.display = "block";
     const villes = [...new Set(excelData.filter(r => r.BRAS === bras).map(r => r.Ville))].filter(v => v).sort();
     const cityContainer = document.getElementById("cityBtnContainer");
+
+    // Temporarily remove voiceBtn if it's in the container to avoid clearing it
+    const voiceBtn = document.getElementById('voiceBtn');
+    let voiceBtnWasInContainer = false;
+    if (voiceBtn && cityContainer.contains(voiceBtn)) {
+        cityContainer.removeChild(voiceBtn);
+        voiceBtnWasInContainer = true;
+    }
+
     cityContainer.innerHTML = "";
     villes.forEach((v, index) => {
-        const vBtn = document.createElement("button"); 
-        vBtn.className = "city-btn city-appear"; 
+        const vBtn = document.createElement("button");
+        vBtn.className = "city-btn city-appear";
         vBtn.style.animationDelay = (index * 0.03) + "s";
         vBtn.textContent = v;
         vBtn.onclick = () => {
@@ -209,8 +219,12 @@ function selectBras(bras, btn) {
         };
         cityContainer.appendChild(vBtn);
     });
-    document.getElementById("liveSearchContainer").style.display = "block";
+
+    // Position the voice button just above the footer
     document.querySelector('.voice-zone').style.display = "flex";
+    positionVoiceZone();
+
+    document.getElementById("liveSearchContainer").style.display = "block";
     positionVoiceZone();
 }
 
@@ -220,25 +234,41 @@ document.getElementById("liveSearchInput").addEventListener("input", function() 
     const resDiv = document.getElementById("liveSearchResults");
     document.getElementById("clearSearchBtn").style.display = val ? "flex" : "none";
 
-    if (val.length < 2 || !selectedBras) { 
-        resDiv.innerHTML = ""; resDiv.style.display = "none"; return; 
+    if (val.length < 2 || !selectedBras) {
+        resDiv.innerHTML = ""; resDiv.style.display = "none"; return;
     }
 
-    const filtered = excelData.filter(r => 
-        r.BRAS === selectedBras && 
-        (!selectedCity || r.Ville === selectedCity) && 
+    // First, try to find matches in TypeRecherche "1"
+    let filtered = excelData.filter(r =>
+        r.BRAS === selectedBras &&
+        (!selectedCity || r.Ville === selectedCity) &&
+        r.TypeRecherche === "1" &&
         normalize(r.Adresse).includes(val)
     );
+
+    let isFallback = false;
+    // If no results in "1", show all from "2" that match city and BRAS
+    if (filtered.length === 0) {
+        filtered = excelData.filter(r =>
+            r.BRAS === selectedBras &&
+            (!selectedCity || r.Ville === selectedCity) &&
+            r.TypeRecherche === "2"
+        );
+        isFallback = true;
+    }
 
     if (filtered.length > 0) {
         resDiv.style.display = "block";
         let html = `<table class="popup-table"><tbody>`;
-        filtered.forEach(r => { 
-            html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`; 
+        if (isFallback) {
+            html = `<p style="color: #ff6b6b; font-weight: bold; text-align: center;">Aucun résultat exact trouvé. Voici les résultats alternatifs :</p>` + html;
+        }
+        filtered.forEach(r => {
+            html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`;
         });
         resDiv.innerHTML = html + "</tbody></table>";
-    } else { 
-        resDiv.style.display = "none"; 
+    } else {
+        resDiv.style.display = "none";
     }
 });
 
@@ -271,6 +301,7 @@ if (recognition) {
         document.getElementById("voiceConfirmText").textContent = `Chercher "${lastRecognized}" ?`;
         const box = document.getElementById("voicePopupOverlay");
         if (box) { box.classList.remove('hidden'); box.style.display = 'flex'; }
+        // Keep the voice button in its container, do not move it
     };
 
     recognition.onerror = (evt) => {
@@ -293,24 +324,52 @@ if (recognition) {
 
 document.getElementById("confirmBtn").onclick = () => {
     const val = normalize(lastRecognized);
-    const filtered = excelData.filter(r => 
-        r.BRAS === selectedBras && 
-        (!selectedCity || r.Ville === selectedCity) && 
+
+    // First, try to find matches in TypeRecherche "1"
+    let filtered = excelData.filter(r =>
+        r.BRAS === selectedBras &&
+        (!selectedCity || r.Ville === selectedCity) &&
+        r.TypeRecherche === "1" &&
         normalize(r.Adresse).includes(val)
     );
 
+    let isFallback = false;
+    // If no results in "1", show all from "2" that match city and BRAS
+    if (filtered.length === 0) {
+        filtered = excelData.filter(r =>
+            r.BRAS === selectedBras &&
+            (!selectedCity || r.Ville === selectedCity) &&
+            r.TypeRecherche === "2"
+        );
+        isFallback = true;
+    }
+
     if (filtered.length > 0) {
         let html = `<table class="popup-table"><tbody>`;
-        filtered.forEach(r => { 
-            html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`; 
+        filtered.forEach(r => {
+            html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`;
         });
         document.getElementById("popupContent").innerHTML = html + "</tbody></table>";
+        if (isFallback) {
+            document.getElementById("popupTitle").innerHTML = "Résultats<br><span style='color: #ff6b6b;'>Aucun résultat exact trouvé. Voici les résultats alternatifs :</span>";
+        } else {
+            document.getElementById("popupTitle").innerHTML = "Résultats";
+        }
         document.getElementById("popupOverlay").style.display = "flex";
-    } else { 
-        alert("Aucun résultat pour : " + lastRecognized); 
+    } else {
+        alert("Aucun résultat pour : " + lastRecognized);
     }
     const vBox = document.getElementById("voicePopupOverlay");
-    if (vBox) { vBox.classList.add('hidden'); vBox.style.display = 'none'; }
+    if (vBox) {
+        vBox.classList.add('hidden');
+        vBox.style.display = 'none';
+        // Move voice button back to voice-zone
+        const voiceBtn = document.getElementById('voiceBtn');
+        const voiceZone = document.querySelector('.voice-zone');
+        if (voiceBtn && voiceZone && !voiceZone.contains(voiceBtn)) {
+            voiceZone.appendChild(voiceBtn);
+        }
+    }
 };
 
 // Interface Modals & Panels
@@ -341,6 +400,16 @@ document.getElementById("modeToggle").onclick = function() {
         admin.classList.add('hidden'); admin.style.display = 'none';
         user.classList.remove('hidden'); user.style.display = 'block';
         if (!selectedBras) document.getElementById("titleVille").style.display = "none";
+        // Move microphone button to city container if a BRAS is selected
+        if (selectedBras) {
+            const voiceBtn = document.getElementById('voiceBtn');
+            const cityContainer = document.getElementById("cityBtnContainer");
+            if (voiceBtn && cityContainer && !cityContainer.contains(voiceBtn)) {
+                voiceBtn.className = 'city-btn city-appear';
+                cityContainer.appendChild(voiceBtn);
+                document.querySelector('.voice-zone').style.display = "none";
+            }
+        }
         this.textContent = 'Paramètres';
     }
 };
@@ -353,23 +422,15 @@ document.getElementById("clearStorageBtn").onclick = () => {
 
 function positionVoiceZone() {
     const voiceZone = document.querySelector('.voice-zone');
-    const searchContainer = document.getElementById('liveSearchContainer');
     const footer = document.querySelector('.app-footer');
-    if (!voiceZone || !searchContainer || !footer) return;
+    if (!voiceZone || !footer) return;
 
-    const searchRect = searchContainer.getBoundingClientRect();
-    const footerRect = footer.getBoundingClientRect();
+    const footerHeight = footer.offsetHeight;
     const voiceZoneHeight = voiceZone.offsetHeight;
 
-    // Calculate the center position between search input and footer
-    const searchBottom = searchRect.bottom;
-    const footerTop = footerRect.top;
-    const availableSpace = footerTop - searchBottom;
-    const centerY = searchBottom + (availableSpace / 2) - (voiceZoneHeight / 2);
-
-    // Position the voice zone absolutely
-    voiceZone.style.position = 'absolute';
-    voiceZone.style.top = centerY + 'px';
+    // Position the voice zone fixed at the bottom, above the footer
+    voiceZone.style.position = 'fixed';
+    voiceZone.style.bottom = footerHeight + 'px';
     voiceZone.style.left = '50%';
     voiceZone.style.transform = 'translateX(-50%)';
     voiceZone.style.zIndex = '10';

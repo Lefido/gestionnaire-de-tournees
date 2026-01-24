@@ -226,11 +226,11 @@ body {
   width: 100%;
 }
 .voice-btn {
-  width: 70px;
-  height: 70px;
-  font-size: 2.2rem;
+  width: 36px;
+  height: 36px;
+  font-size: 1.5rem;
   border-radius: 50%;
-  border: none;
+  border: 1px solid var(--border);
   background: var(--bg-btn);
   color: white;
   cursor: pointer;
@@ -241,18 +241,16 @@ body {
 .voice-btn.listening {
   background: var(--success);
   animation: pulse 1.2s infinite;
+  z-index: 1010;
 }
 @keyframes pulse {
   0% {
-    transform: scale(1);
     box-shadow: 0 0 0 0 rgba(0, 204, 68, 0.7);
   }
   70% {
-    transform: scale(1.1);
     box-shadow: 0 0 0 15px rgba(0, 204, 68, 0);
   }
   100% {
-    transform: scale(1);
     box-shadow: 0 0 0 0 rgba(0, 204, 68, 0);
   }
 }
