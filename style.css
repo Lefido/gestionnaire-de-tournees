@@ -226,8 +226,8 @@ body {
   width: 100%;
 }
 .voice-btn {
-  width: 46px;
-  height: 46px;
+  width: 56px;
+  height: 56px;
   font-size: 1.5rem;
   border-radius: 50%;
   border: 1px solid var(--border);
@@ -373,7 +373,7 @@ body {
   height: auto;
   max-height: 40vh;
   overflow-y: auto;
-  margin: 15px 0;
+  margin: 0 0 15px 0;
   display: flex;
   justify-content: center;
 }

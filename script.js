@@ -267,7 +267,7 @@ document.getElementById("liveSearchInput").addEventListener("input", function() 
         resDiv.style.display = "block";
         let html = `<table class="popup-table"><tbody>`;
         if (isFallback) {
-            html = `<p style="color: #ff6b6b; font-weight: bold; text-align: center;">Aucun résultat exact trouvé. Voici les résultats alternatifs :</p>` + html;
+            html = `<p style="color: #ff6b6b; font-weight: bold; text-align: center; margin-bottom: 5px;">Aucun résultat exact trouvé. Voici les résultats alternatifs :</p>` + html;
         }
         filtered.forEach(r => {
             html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`;
@@ -357,7 +357,7 @@ document.getElementById("confirmBtn").onclick = () => {
         });
         document.getElementById("popupContent").innerHTML = html + "</tbody></table>";
         if (isFallback) {
-            document.getElementById("popupTitle").innerHTML = "Résultats<br><span style='color: #ff6b6b;'>Aucun résultat exact trouvé. Voici les résultats alternatifs :</span>";
+        document.getElementById("popupTitle").innerHTML = "Résultats<br><span style='color: #ff6b6b; margin-top: 10px; display: block;'>Aucun résultat exact trouvé. Voici les résultats alternatifs :</span>";
         } else {
             document.getElementById("popupTitle").innerHTML = "Résultats";
         }
