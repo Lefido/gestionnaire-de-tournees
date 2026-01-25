@@ -547,6 +547,9 @@ const cameraPopupClose = document.getElementById("cameraPopupClose");
 const videoFeed = document.getElementById("cameraFeed");
 const cameraStatus = document.getElementById("cameraStatus");
 
+// Scan configuration optimized for both letters and labels
+const scanConfig = { top: 0.1, left: 0.05, width: 0.9, height: 0.8 }; // Large area covering both document types
+
 async function startCamera() {
     if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
@@ -589,16 +592,29 @@ function stopCamera() {
     }
 }
 
+function updateScanRegion() {
+    const scanRegion = document.getElementById('scanRegion');
+    if (!scanRegion || !videoFeed) return;
+
+    scanRegion.style.top = (scanConfig.top * 100) + '%';
+    scanRegion.style.left = (scanConfig.left * 100) + '%';
+    scanRegion.style.width = (scanConfig.width * 100) + '%';
+    scanRegion.style.height = (scanConfig.height * 100) + '%';
+}
+
 if (cameraButton && cameraPopup && cameraPopupClose) {
     cameraButton.addEventListener("click", () => {
         cameraPopup.classList.remove("hidden");
         startCamera();
+        updateScanRegion();
     });
 
     cameraPopupClose.addEventListener("click", () => {
         cameraPopup.classList.add("hidden");
         stopCamera();
     });
+
+
 
     const captureBtn = document.getElementById("captureBtn");
     const captureCanvas = document.getElementById("captureCanvas");
@@ -621,10 +637,10 @@ if (cameraButton && cameraPopup && cameraPopupClose) {
             
             try {
                 const rectangle = {
-                    top: videoFeed.videoHeight * 0.2,
-                    left: videoFeed.videoWidth * 0.1,
-                    width: videoFeed.videoWidth * 0.8,
-                    height: videoFeed.videoHeight * 0.6
+                    top: videoFeed.videoHeight * scanConfig.top,
+                    left: videoFeed.videoWidth * scanConfig.left,
+                    width: videoFeed.videoWidth * scanConfig.width,
+                    height: videoFeed.videoHeight * scanConfig.height
                 };
 
                 const result = await Tesseract.recognize(
