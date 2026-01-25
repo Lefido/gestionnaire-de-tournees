@@ -161,7 +161,7 @@ body {
   padding-bottom: 0vh; /* Espace crucial pour permettre au champ de monter tout en haut */
 }
 
-.search-section.focused { padding-bottom: 100vh; }
+.search-section.focused { padding-bottom: 0; }
 
 .search-section.focused .search-wrapper {
   max-width: 430px;

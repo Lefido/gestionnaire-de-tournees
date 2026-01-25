@@ -244,9 +244,14 @@ function selectBras(bras, btn) {
         vBtn.style.animationDelay = (index * 0.03) + "s";
         vBtn.textContent = v;
         vBtn.onclick = () => {
-            selectedCity = v;
-            document.querySelectorAll("#cityBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
-            vBtn.classList.add("active");
+            if (selectedCity === v) {
+                selectedCity = "";
+                document.querySelectorAll("#cityBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
+            } else {
+                selectedCity = v;
+                document.querySelectorAll("#cityBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
+                vBtn.classList.add("active");
+            }
             vibrateOnClick();
         };
         cityContainer.appendChild(vBtn);
