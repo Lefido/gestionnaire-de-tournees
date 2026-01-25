@@ -36,7 +36,6 @@ window.addEventListener("DOMContentLoaded", () => {
         refreshUI();
     }
     checkDataWarning();
-    document.getElementById("titleVille").style.display = "none";
     positionVoiceZone();
     window.addEventListener('resize', positionVoiceZone);
 
@@ -136,17 +135,25 @@ window.addEventListener("DOMContentLoaded", () => {
 function checkDataWarning() {
     const warning = document.getElementById("noFileWarning");
     if (warning) warning.style.display = (excelData.length > 0) ? "none" : "block";
-    
+
     const brasTitle = document.querySelector('#userPanel h2:first-of-type');
     const brasContainer = document.getElementById('brasBtnContainer');
     const searchContainer = document.getElementById('liveSearchContainer');
     const voiceZone = document.querySelector('.voice-zone');
+    const titleVille = document.getElementById("titleVille");
     const hasData = excelData.length > 0;
     const hasSelected = selectedBras !== "";
     if (brasTitle) brasTitle.style.display = hasData ? "block" : "none";
     if (brasContainer) brasContainer.style.display = hasData ? "flex" : "none";
     if (searchContainer) searchContainer.style.display = (hasData && hasSelected) ? "block" : "none";
     if (voiceZone) voiceZone.style.display = (hasData && hasSelected) ? "flex" : "none";
+    if (titleVille) {
+        if (hasSelected) {
+            titleVille.classList.remove("hidden");
+        } else {
+            titleVille.classList.add("hidden");
+        }
+    }
 }
 
 // Importation Excel
@@ -201,17 +208,17 @@ function refreshUI() {
 }
 
 function selectBras(bras, btn) {
-    selectedBras = bras; 
+    selectedBras = bras;
     selectedCity = "";
-    
+
     // UI Reset
     document.querySelectorAll("#brasBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     document.getElementById("liveSearchInput").value = "";
     document.getElementById("liveSearchResults").style.display = "none";
-    
+
     // Villes
-    document.getElementById("titleVille").style.display = "block";
+    document.getElementById("titleVille").classList.remove("hidden");
     const villes = [...new Set(excelData.filter(r => r.BRAS === bras).map(r => r.Ville))].filter(v => v).sort();
     const cityContainer = document.getElementById("cityBtnContainer");
 
@@ -244,12 +251,8 @@ function selectBras(bras, btn) {
         cityContainer.appendChild(voiceBtn);
     }
 
-    // Position the voice button just above the footer
-    document.querySelector('.voice-zone').style.display = "flex";
-    positionVoiceZone();
-
-    document.getElementById("liveSearchContainer").style.display = "block";
-    positionVoiceZone();
+    // Update UI based on selection
+    checkDataWarning();
 }
 
 // Recherche Live
@@ -422,7 +425,11 @@ document.getElementById("modeToggle").onclick = function() {
     } else {
         admin.classList.add('hidden'); admin.style.display = 'none';
         user.classList.remove('hidden'); user.style.display = 'block';
-        if (!selectedBras) document.getElementById("titleVille").style.display = "none";
+        if (!selectedBras) {
+            document.getElementById("titleVille").classList.add("hidden");
+        } else {
+            document.getElementById("titleVille").classList.remove("hidden");
+        }
         // Move microphone button back to voice-zone if a BRAS is selected
         if (selectedBras) {
             const voiceBtn = document.getElementById('voiceBtn');
