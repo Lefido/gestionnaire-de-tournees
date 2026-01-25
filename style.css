@@ -84,7 +84,7 @@ body {
   left: 50%;
   transform: translateX(-50%);
   width: 60%;
-  max-width: 400px;
+  max-width: 430px;
   z-index: 101;
   background: var(--bg-input);
   color: white;
@@ -163,6 +163,14 @@ body {
 
 .search-section.focused { padding-bottom: 100vh; }
 
+.search-section.focused .search-wrapper {
+  max-width: 430px;
+}
+
+.search-section.focused ~ .live-search-results {
+  max-width: 430px;
+}
+
 .search-wrapper {
   position: relative;
   width: 100%;
@@ -184,6 +192,7 @@ body {
   outline: none;
 }
 .live-search-input:focus {
+  width: 90%;
   border-color: var(--bg-btn);
 }
 

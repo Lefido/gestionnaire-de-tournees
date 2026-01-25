@@ -68,6 +68,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     searchInput.addEventListener("focus", () => {
         searchInput.classList.add('fixed-input');
+        searchContainer.classList.add('focused');
         const results = document.getElementById('liveSearchResults');
         results.style.position = 'fixed';
         results.style.top = '130px';
@@ -88,6 +89,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     searchInput.addEventListener("blur", () => {
         searchInput.classList.remove('fixed-input');
+        searchContainer.classList.remove('focused');
         searchInput.value = '';
         const results = document.getElementById('liveSearchResults');
         results.innerHTML = '';
