@@ -1,0 +1,13 @@
+{
+  "name": "Assistant Tournées",
+  "short_name": "Assistant Tournées",
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "snipers.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
