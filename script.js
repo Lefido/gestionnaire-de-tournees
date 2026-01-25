@@ -29,6 +29,11 @@ function vibrateOnClick() {
     }
 }
 
+// Prevent PWA install prompt to only allow desktop shortcut
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+});
+
 window.addEventListener("DOMContentLoaded", () => {
     const saved = localStorage.getItem("tourneeData");
     if (saved) {
