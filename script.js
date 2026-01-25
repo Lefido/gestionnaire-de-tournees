@@ -555,7 +555,7 @@ const videoFeed = document.getElementById("cameraFeed");
 const cameraStatus = document.getElementById("cameraStatus");
 
 // Scan configuration optimized for both letters and labels
-const scanConfig = { top: 0.1, left: 0.05, width: 0.9, height: 0.8 }; // Large area covering both document types
+const scanConfig = { top: 0.25, left: 0.05, width: 0.9, height: 0.5 }; // Large area covering both document types
 
 async function startCamera() {
     if (cameraStream) {

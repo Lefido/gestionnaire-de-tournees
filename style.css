@@ -49,11 +49,7 @@ body {
   background: var(--bg-panel);
   padding: 12px 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  position: relative;
 }
 .header-inner {
   display: grid;
@@ -101,13 +97,15 @@ body {
 .main-content {
   flex: 1;
   padding: 15px;
-  padding-top: 80px;
-  padding-bottom: 80px; /* Espace pour le footer fixe */
   width: 100%;
   max-width: 650px;
   margin: 0 auto;
   box-sizing: border-box;
   overflow: hidden;
+  height: 100vh; /* Full height since header is now relative */
+}
+#userPanel {
+  margin-top: -20px;
 }
 .section-title {
   width: 100%;
@@ -159,7 +157,7 @@ body {
 .search-section {
   margin: 15px 0;
   width: 100%;
-  scroll-margin-top: 80px;
+  scroll-margin-top: 0px;
   padding-bottom: 0vh; /* Espace crucial pour permettre au champ de monter tout en haut */
 }
 
@@ -180,7 +178,8 @@ body {
   background: var(--bg-input);
   border: 2px solid var(--border);
   color: white;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
+  font-weight: bold;
   box-sizing: border-box;
   outline: none;
 }
@@ -589,6 +588,7 @@ input:checked + .toggle-slider:before {
 
 .scan-region {
     position: absolute;
+    height: 4cm;
     border: 2px solid var(--success);
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
     border-radius: 8px;
