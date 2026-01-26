@@ -392,7 +392,7 @@ document.getElementById("confirmBtn").onclick = () => {
         });
         document.getElementById("popupContent").innerHTML = html + "</tbody></table>";
         if (isFallback) {
-        document.getElementById("popupTitle").innerHTML = "Résultats<br><span style='color: #ff6b6b; margin-top: 10px; display: block;'>Aucun résultat trouvé. Résultats alternatifs :</span>";
+        document.getElementById("popupTitle").innerHTML = "Résultats<br><span style='color: #ff6b6b; margin-top: 10px; display: block; font-size: 0.8em;'>Aucun résultat trouvé. Résultats alternatifs :</span>";
         } else {
             document.getElementById("popupTitle").innerHTML = "Résultats";
         }
