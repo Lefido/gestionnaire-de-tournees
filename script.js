@@ -109,6 +109,7 @@ window.addEventListener("DOMContentLoaded", () => {
         clearBtn.style.top = '';
         clearBtn.style.right = '';
         clearBtn.style.zIndex = '';
+        clearBtn.style.display = 'none';
     });
 
     // Vérification disponibilité reconnaissance vocale et feedback UI
@@ -223,6 +224,7 @@ function selectBras(bras, btn) {
     btn.classList.add("active");
     document.getElementById("liveSearchInput").value = "";
     document.getElementById("liveSearchResults").style.display = "none";
+    document.getElementById("clearSearchBtn").style.display = "none";
 
     // Villes
     document.getElementById("titleVille").classList.remove("hidden");
