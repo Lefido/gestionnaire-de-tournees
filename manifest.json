@@ -2,7 +2,7 @@
   "name": "Assistant Tournées",
   "short_name": "Assistant Tournées",
   "start_url": "/",
-  "display": "standalone",
+  "display": "browser",
   "icons": [
     {
       "src": "snipers.png",
