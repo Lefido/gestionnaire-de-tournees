@@ -143,13 +143,13 @@ body {
 
 .city-appear {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translatey(px);
   animation: slideUp 0.3s ease forwards;
 }
 @keyframes slideUp {
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(20);
   }
 }
 
@@ -556,7 +556,7 @@ input:checked + .toggle-slider:before {
 .app-footer {
   text-align: center;
   padding: 20px;
-  font-size: 0.75rem;
+  font-size: 0.80rem;
   color: white;
   position: fixed;
   bottom: 0;
