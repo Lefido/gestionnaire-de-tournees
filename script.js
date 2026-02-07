@@ -289,14 +289,14 @@ function rafraichirInterface() {
     const conteneur = document.getElementById("brasBtnContainer");
     if (conteneur) {
         conteneur.innerHTML = "";
-        brasUniques.forEach((bras, index) => {
-            const bouton = document.createElement("button");
-            bouton.className = "city-btn city-appear";
-            bouton.style.animationDelay = (index * 0.05) + "s";
-            bouton.textContent = bras;
-            bouton.onclick = () => { selectionnerBras(bras, bouton); vibrerAuClic(); };
-            conteneur.appendChild(bouton);
-        });
+    brasUniques.forEach((bras, index) => {
+        const bouton = document.createElement("button");
+        bouton.className = "city-btn city-appear";
+        bouton.style.animationDelay = (index * 0.1) + "s";
+        bouton.textContent = bras;
+        bouton.onclick = () => { selectionnerBras(bras, bouton); vibrerAuClic(); };
+        conteneur.appendChild(bouton);
+    });
     }
 }
 
