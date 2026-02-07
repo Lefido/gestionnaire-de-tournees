@@ -487,10 +487,15 @@ td {
   padding: 12px;
   border-radius: 8px;
   border: none;
+  font-size: 0.9rem;
   font-weight: bold;
   cursor: pointer;
   color: white;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 .file-btn,
 .mode-toggle {
@@ -498,6 +503,14 @@ td {
 }
 .danger-btn {
   background: var(--danger);
+}
+
+.file-btn i {
+  margin-right: 12px;
+}
+
+.danger-btn i {
+  margin-right: 8px;
 }
 
 /* TOGGLE ROW */
