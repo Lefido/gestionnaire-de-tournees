@@ -577,7 +577,7 @@ input:checked + .toggle-slider:before {
 }
 .app-footer {
   text-align: center;
-  padding: 20px;
+  padding: 10px;
   font-size: 0.80rem;
   color: white;
   position: fixed;
