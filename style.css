@@ -1,3 +1,6 @@
+/* =====================================
+   VARIABLES CSS GLOBALES
+   ===================================== */
 :root {
   --bg-dark: #111;
   --bg-panel: #1c1c1c;
@@ -9,7 +12,9 @@
   --success: #00cc44;
 }
 
-/* Utility classes */
+/* =====================================
+   CLASSES UTILITAIRES
+   ===================================== */
 .hidden { display: none !important; }
 .sr-only {
   position: absolute !important;
@@ -24,7 +29,9 @@
 }
 .mt-20 { margin-top: 20px !important; }
 
-/* BASE */
+/* =====================================
+   STYLES DE BASE
+   ===================================== */
 html,
 body {
   margin: 0;
@@ -44,7 +51,9 @@ body {
   overflow: hidden;
 }
 
-/* HEADER */
+/* =====================================
+   EN-TÊTE
+   ===================================== */
 .app-header {
   background: var(--bg-panel);
   padding: 12px 10px;
@@ -93,7 +102,9 @@ body {
   border: 1px solid var(--border);
 }
 
-/* CONTENU PRINCIPAL */
+/* =====================================
+   CONTENU PRINCIPAL
+   ===================================== */
 .main-content {
   flex: 1;
   padding: 15px;
@@ -102,7 +113,7 @@ body {
   margin: 0 auto;
   box-sizing: border-box;
   overflow: hidden;
-  height: 100vh; /* Full height since header is now relative */
+  height: 100vh; /* Pleine hauteur puisque l'en-tête est maintenant relative */
 }
 #userPanel {
   margin-top: -20px;

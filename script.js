@@ -1,29 +1,86 @@
-let excelData = [], selectedBras = "", selectedCity = "", lastRecognized = "", cameraStream = null;
+/**
+ * Données Excel chargées depuis le fichier importé
+ * @type {Array<Object>}
+ */
+let donneesExcel = [];
 
-// Initialisation reconnaissance vocale
-const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const recognition = SpeechRecognition ? new SpeechRecognition() : null;
-if (recognition) { 
-    recognition.lang = "fr-FR"; 
-    recognition.interimResults = false; 
+/**
+ * Bras de distribution actuellement sélectionné
+ * @type {string}
+ */
+let brasSelectionne = "";
+
+/**
+ * Ville actuellement sélectionnée
+ * @type {string}
+ */
+let villeSelectionnee = "";
+
+/**
+ * Dernier texte reconnu par la reconnaissance vocale
+ * @type {string}
+ */
+let dernierReconnu = "";
+
+/**
+ * Flux de la caméra actif
+ * @type {MediaStream|null}
+ */
+let fluxCamera = null;
+
+// =====================================
+// INITIALISATION DE LA RECONNAISSANCE VOCALE
+// =====================================
+
+/**
+ * Objet de reconnaissance vocale
+ * @type {SpeechRecognition|null}
+ */
+const reconnaissanceVocale = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+/**
+ * Instance de reconnaissance vocale configurée
+ * @type {SpeechRecognition|null}
+ */
+const instanceReconnaissance = reconnaissanceVocale ? new reconnaissanceVocale() : null;
+
+if (instanceReconnaissance) {
+    instanceReconnaissance.lang = "fr-FR";
+    instanceReconnaissance.interimResults = false;
 }
 
-// Utilitaire : Supprimer les accents pour une recherche plus flexible
-const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+// =====================================
+// UTILITAIRES
+// =====================================
 
-function playBeep() {
+/**
+ * Normalise une chaîne de caractères en supprimant les accents pour une recherche plus flexible
+ * @param {string} str - La chaîne à normaliser
+ * @returns {string} La chaîne normalisée en minuscules sans accents
+ */
+const normaliserTexte = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+/**
+ * Joue un bip sonore pour indiquer une action
+ */
+function jouerBip() {
     try {
-        const context = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = context.createOscillator();
-        const gain = context.createGain();
-        osc.connect(gain); gain.connect(context.destination);
-        osc.frequency.value = 800; osc.start();
-        gain.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 0.1);
-        osc.stop(context.currentTime + 0.1);
+        const contexteAudio = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillateur = contexteAudio.createOscillator();
+        const gain = contexteAudio.createGain();
+        oscillateur.connect(gain);
+        gain.connect(contexteAudio.destination);
+        oscillateur.frequency.value = 800;
+        oscillateur.start();
+        gain.gain.exponentialRampToValueAtTime(0.00001, contexteAudio.currentTime + 0.1);
+        oscillateur.stop(contexteAudio.currentTime + 0.1);
     } catch(e) {}
 }
 
-function vibrateOnClick() {
+/**
+ * Fait vibrer l'appareil lors d'un clic (si supporté)
+ */
+function vibrerAuClic() {
     if (navigator.vibrate) {
         navigator.vibrate(50); // Vibration douce de 50ms
     }
@@ -34,678 +91,803 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
 });
 
+// =====================================
+// INITIALISATION DE L'APPLICATION
+// =====================================
+
+/**
+ * Initialise l'application au chargement du DOM
+ */
 window.addEventListener("DOMContentLoaded", () => {
-    const saved = localStorage.getItem("tourneeData");
-    if (saved) {
-        excelData = JSON.parse(saved);
-        refreshUI();
+    // Charger les données sauvegardées
+    const donneesSauvegardees = localStorage.getItem("tourneeData");
+    if (donneesSauvegardees) {
+        donneesExcel = JSON.parse(donneesSauvegardees);
+        rafraichirInterface();
     }
-    checkDataWarning();
-    positionVoiceZone();
-    window.addEventListener('resize', positionVoiceZone);
 
-    // Handle camera toggle and persist state
-    const cameraToggle = document.getElementById("cameraToggle");
-    const cameraBtn = document.getElementById("cameraBtn");
+    verifierAvertissementDonnees();
+    positionnerZoneVocale();
+    window.addEventListener('resize', positionnerZoneVocale);
 
-    if (cameraToggle && cameraBtn) {
-        // Load and apply initial state from localStorage
-        const cameraEnabled = localStorage.getItem("cameraEnabled") === 'true';
-        cameraToggle.checked = cameraEnabled;
-        cameraBtn.classList.toggle('hidden', !cameraEnabled);
+    // Gestion du toggle caméra et persistance de l'état
+    const toggleCamera = document.getElementById("cameraToggle");
+    const boutonCamera = document.getElementById("cameraBtn");
 
-        // Handle change and save state
-        cameraToggle.addEventListener("change", () => {
-            const isChecked = cameraToggle.checked;
-            cameraBtn.classList.toggle('hidden', !isChecked);
-            localStorage.setItem("cameraEnabled", isChecked);
+    if (toggleCamera && boutonCamera) {
+        // Charger et appliquer l'état initial depuis localStorage
+        const cameraActivee = localStorage.getItem("cameraEnabled") === 'true';
+        toggleCamera.checked = cameraActivee;
+        boutonCamera.classList.toggle('hidden', !cameraActivee);
+
+        // Gérer le changement et sauvegarder l'état
+        toggleCamera.addEventListener("change", () => {
+            const estCoche = toggleCamera.checked;
+            boutonCamera.classList.toggle('hidden', !estCoche);
+            localStorage.setItem("cameraEnabled", estCoche);
         });
     }
 
     // AUTO-SCROLL : Garder l'input en haut de l'écran quand le clavier sort
-    const searchInput = document.getElementById("liveSearchInput");
-    const searchContainer = document.getElementById("liveSearchContainer");
+    const champRecherche = document.getElementById("liveSearchInput");
+    const conteneurRecherche = document.getElementById("liveSearchContainer");
 
-    searchInput.addEventListener("focus", () => {
-        searchInput.classList.add('fixed-input');
-        searchContainer.classList.add('focused');
-        const results = document.getElementById('liveSearchResults');
-        results.style.position = 'fixed';
-        results.style.top = '130px';
-        results.style.left = '50%';
-        results.style.transform = 'translateX(-50%)';
-        results.style.width = searchInput.offsetWidth + 'px';
-        results.style.zIndex = '1000';
-        results.style.background = 'var(--bg-panel)';
-        results.style.borderRadius = '8px';
-        results.style.maxHeight = '60vh';
-        results.style.overflowY = 'auto';
-        const clearBtn = document.getElementById('clearSearchBtn');
-        clearBtn.style.position = 'fixed';
-        clearBtn.style.top = (80 + searchInput.offsetHeight / 2 - 12) + 'px';
-        clearBtn.style.right = 'calc(50% - ' + (searchInput.offsetWidth / 2) + 'px + 12px)';
-        clearBtn.style.zIndex = '102';
+    champRecherche.addEventListener("focus", () => {
+        champRecherche.classList.add('fixed-input');
+        conteneurRecherche.classList.add('focused');
+        const resultats = document.getElementById('liveSearchResults');
+        resultats.style.position = 'fixed';
+        resultats.style.top = '130px';
+        resultats.style.left = '50%';
+        resultats.style.transform = 'translateX(-50%)';
+        resultats.style.width = champRecherche.offsetWidth + 'px';
+        resultats.style.zIndex = '1000';
+        resultats.style.background = 'var(--bg-panel)';
+        resultats.style.borderRadius = '8px';
+        resultats.style.maxHeight = '60vh';
+        resultats.style.overflowY = 'auto';
+        const boutonEffacer = document.getElementById('clearSearchBtn');
+        boutonEffacer.style.position = 'fixed';
+        boutonEffacer.style.top = (80 + champRecherche.offsetHeight / 2 - 12) + 'px';
+        boutonEffacer.style.right = 'calc(50% - ' + (champRecherche.offsetWidth / 2) + 'px + 12px)';
+        boutonEffacer.style.zIndex = '102';
     });
 
-    searchInput.addEventListener("blur", () => {
-        searchInput.classList.remove('fixed-input');
-        searchContainer.classList.remove('focused');
-        searchInput.value = '';
-        const results = document.getElementById('liveSearchResults');
-        results.innerHTML = '';
-        results.style.display = 'none';
-        results.style.position = '';
-        results.style.top = '';
-        results.style.left = '';
-        results.style.transform = '';
-        results.style.width = '';
-        results.style.zIndex = '';
-        results.style.background = '';
-        results.style.borderRadius = '';
-        results.style.maxHeight = '';
-        results.style.overflowY = '';
-        const clearBtn = document.getElementById('clearSearchBtn');
-        clearBtn.style.position = '';
-        clearBtn.style.top = '';
-        clearBtn.style.right = '';
-        clearBtn.style.zIndex = '';
-        clearBtn.style.display = 'none';
+    champRecherche.addEventListener("blur", () => {
+        champRecherche.classList.remove('fixed-input');
+        conteneurRecherche.classList.remove('focused');
+        champRecherche.value = '';
+        const resultats = document.getElementById('liveSearchResults');
+        resultats.innerHTML = '';
+        resultats.style.display = 'none';
+        resultats.style.position = '';
+        resultats.style.top = '';
+        resultats.style.left = '';
+        resultats.style.transform = '';
+        resultats.style.width = '';
+        resultats.style.zIndex = '';
+        resultats.style.background = '';
+        resultats.style.borderRadius = '';
+        resultats.style.maxHeight = '';
+        resultats.style.overflowY = '';
+        const boutonEffacer = document.getElementById('clearSearchBtn');
+        boutonEffacer.style.position = '';
+        boutonEffacer.style.top = '';
+        boutonEffacer.style.right = '';
+        boutonEffacer.style.zIndex = '';
+        boutonEffacer.style.display = 'none';
     });
 
     // Vérification disponibilité reconnaissance vocale et feedback UI
-    const voiceBtn = document.getElementById("voiceBtn");
-    const statusText = document.getElementById("statusText");
-    if (!recognition) {
-        if (voiceBtn) {
-            voiceBtn.disabled = true;
-            voiceBtn.setAttribute('aria-disabled', 'true');
+    const boutonVocal = document.getElementById("voiceBtn");
+    const texteStatut = document.getElementById("statusText");
+    if (!instanceReconnaissance) {
+        if (boutonVocal) {
+            boutonVocal.disabled = true;
+            boutonVocal.setAttribute('aria-disabled', 'true');
         }
-        if (statusText) statusText.textContent = "Commande vocale non disponible";
+        if (texteStatut) texteStatut.textContent = "Commande vocale non disponible";
     } else {
-        if (statusText && statusText.textContent.trim() === '') statusText.textContent = "Prêt.";
+        if (texteStatut && texteStatut.textContent.trim() === '') texteStatut.textContent = "Prêt.";
     }
+
     // Masquer explicitement la boîte de confirmation vocale au chargement
-    const voiceConfirmBox = document.getElementById("voiceConfirmBox");
-    if (voiceConfirmBox) { voiceConfirmBox.classList.add('hidden'); }
+    const boiteConfirmationVocale = document.getElementById("voiceConfirmBox");
+    if (boiteConfirmationVocale) { boiteConfirmationVocale.classList.add('hidden'); }
+
     // Masquer la popup vocale au chargement
-    const voicePopupOverlay = document.getElementById("voicePopupOverlay");
-    if (voicePopupOverlay) { voicePopupOverlay.classList.add('hidden'); }
+    const popupVocale = document.getElementById("voicePopupOverlay");
+    if (popupVocale) { popupVocale.classList.add('hidden'); }
 
     // Ajouter vibration à tous les boutons
     document.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('click', vibrateOnClick);
+        btn.addEventListener('click', vibrerAuClic);
     });
 
     // Ajouter vibration au bouton "Import Excel" (label)
-    document.querySelector('label[for="excelFile"]').addEventListener('click', vibrateOnClick);
+    document.querySelector('label[for="excelFile"]').addEventListener('click', vibrerAuClic);
 });
 
-function checkDataWarning() {
-    const warning = document.getElementById("noFileWarning");
-    if (warning) warning.style.display = (excelData.length > 0) ? "none" : "block";
+/**
+ * Vérifie et met à jour l'affichage des avertissements et éléments d'interface selon la disponibilité des données
+ */
+function verifierAvertissementDonnees() {
+    const avertissement = document.getElementById("noFileWarning");
+    if (avertissement) avertissement.style.display = (donneesExcel.length > 0) ? "none" : "block";
 
-    const brasTitle = document.querySelector('#userPanel h2:first-of-type');
-    const brasContainer = document.getElementById('brasBtnContainer');
-    const searchContainer = document.getElementById('liveSearchContainer');
-    const voiceZone = document.querySelector('.voice-zone');
-    const titleVille = document.getElementById("titleVille");
-    const hasData = excelData.length > 0;
-    const hasSelected = selectedBras !== "";
-    if (brasTitle) brasTitle.style.display = hasData ? "block" : "none";
-    if (brasContainer) brasContainer.style.display = hasData ? "flex" : "none";
-    if (searchContainer) searchContainer.style.display = (hasData && hasSelected) ? "block" : "none";
-    if (voiceZone) voiceZone.style.display = (hasData && hasSelected) ? "flex" : "none";
-    if (titleVille) {
-        if (hasSelected) {
-            titleVille.classList.remove("hidden");
+    const titreBras = document.querySelector('#userPanel h2:first-of-type');
+    const conteneurBras = document.getElementById('brasBtnContainer');
+    const conteneurRecherche = document.getElementById('liveSearchContainer');
+    const zoneVocale = document.querySelector('.voice-zone');
+    const titreVille = document.getElementById("titleVille");
+    const aDonnees = donneesExcel.length > 0;
+    const aSelectionne = brasSelectionne !== "";
+    if (titreBras) titreBras.style.display = aDonnees ? "block" : "none";
+    if (conteneurBras) conteneurBras.style.display = aDonnees ? "flex" : "none";
+    if (conteneurRecherche) conteneurRecherche.style.display = (aDonnees && aSelectionne) ? "block" : "none";
+    if (zoneVocale) zoneVocale.style.display = (aDonnees && aSelectionne) ? "flex" : "none";
+    if (titreVille) {
+        if (aSelectionne) {
+            titreVille.classList.remove("hidden");
         } else {
-            titleVille.classList.add("hidden");
+            titreVille.classList.add("hidden");
         }
     }
 }
 
-// Importation Excel
+/**
+ * Gestionnaire d'événement pour l'importation du fichier Excel
+ */
 document.getElementById("excelFile").addEventListener("change", function(e) {
-    const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-        const data = new Uint8Array(evt.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        excelData = XLSX.utils.sheet_to_json(sheet).map(row => ({
-            BRAS: String(row.BRAS || "").trim().toLowerCase(),
-            Ville: String(row.Ville || "").trim().toLowerCase(),
-            Adresse: String(row.Adresse || "").trim().toLowerCase(),
-            Numero: String(row["Numéro de tournée"] || row["Numéro"] || "").trim(),
-            TypeRecherche: String(row["Type Recherche"] || "").trim()
+    const fichier = e.target.files[0];
+    if (!fichier) return;
+
+    const lecteur = new FileReader();
+    lecteur.onload = (evt) => {
+        const donnees = new Uint8Array(evt.target.result);
+        const classeur = XLSX.read(donnees, { type: "array" });
+        const feuille = classeur.Sheets[classeur.SheetNames[0]];
+
+        // Transformation des données Excel en format interne
+        donneesExcel = XLSX.utils.sheet_to_json(feuille).map(ligne => ({
+            BRAS: String(ligne.BRAS || "").trim().toLowerCase(),
+            Ville: String(ligne.Ville || "").trim().toLowerCase(),
+            Adresse: String(ligne.Adresse || "").trim().toLowerCase(),
+            Numero: String(ligne["Numéro de tournée"] || ligne["Numéro"] || "").trim(),
+            TypeRecherche: String(ligne["Type Recherche"] || "").trim()
         }));
-        localStorage.setItem("tourneeData", JSON.stringify(excelData));
-        refreshUI();
-        checkDataWarning();
+
+        // Sauvegarde dans le localStorage
+        localStorage.setItem("tourneeData", JSON.stringify(donneesExcel));
+
+        // Mise à jour de l'interface
+        rafraichirInterface();
+        verifierAvertissementDonnees();
+
         alert("Données importées avec succès !");
     };
-    reader.readAsArrayBuffer(file);
+    lecteur.readAsArrayBuffer(fichier);
 });
 
-function refreshUI() {
-    // Remplissage tableau Admin
-    const tbody = document.getElementById("adminTableBody");
-    if (tbody) {
-        tbody.innerHTML = "";
-        excelData.forEach(row => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `<td>${row.BRAS}</td><td>${row.Ville}</td><td>${row.Adresse}</td><td>${row.Numero}</td>`;
-            tbody.appendChild(tr);
+/**
+ * Rafraîchit l'interface utilisateur avec les données actuelles
+ */
+function rafraichirInterface() {
+    // Remplissage du tableau d'administration
+    const corpsTableau = document.getElementById("adminTableBody");
+    if (corpsTableau) {
+        corpsTableau.innerHTML = "";
+        donneesExcel.forEach(ligne => {
+            const ligneTableau = document.createElement("tr");
+            ligneTableau.innerHTML = `<td>${ligne.BRAS}</td><td>${ligne.Ville}</td><td>${ligne.Adresse}</td><td>${ligne.Numero}</td>`;
+            corpsTableau.appendChild(ligneTableau);
         });
     }
 
-    // Génération boutons BRAS
-    const brasUniques = [...new Set(excelData.map(r => r.BRAS))].filter(b => b).sort();
-    const container = document.getElementById("brasBtnContainer"); 
-    if (container) {
-        container.innerHTML = "";
-    brasUniques.forEach((bras, index) => {
-        const btn = document.createElement("button");
-        btn.className = "city-btn city-appear";
-        btn.style.animationDelay = (index * 0.05) + "s";
-        btn.textContent = bras;
-        btn.onclick = () => { selectBras(bras, btn); vibrateOnClick(); };
-        container.appendChild(btn);
-    });
+    // Génération des boutons BRAS
+    const brasUniques = [...new Set(donneesExcel.map(l => l.BRAS))].filter(b => b).sort();
+    const conteneur = document.getElementById("brasBtnContainer");
+    if (conteneur) {
+        conteneur.innerHTML = "";
+        brasUniques.forEach((bras, index) => {
+            const bouton = document.createElement("button");
+            bouton.className = "city-btn city-appear";
+            bouton.style.animationDelay = (index * 0.05) + "s";
+            bouton.textContent = bras;
+            bouton.onclick = () => { selectionnerBras(bras, bouton); vibrerAuClic(); };
+            conteneur.appendChild(bouton);
+        });
     }
 }
 
-function selectBras(bras, btn) {
-    selectedBras = bras;
-    selectedCity = "";
+/**
+ * Sélectionne un bras de distribution et met à jour l'interface utilisateur
+ * @param {string} bras - Le bras de distribution sélectionné
+ * @param {HTMLElement} bouton - Le bouton cliqué pour la sélection
+ */
+function selectionnerBras(bras, bouton) {
+    brasSelectionne = bras;
+    villeSelectionnee = "";
 
-    // UI Reset
+    // Réinitialisation de l'interface utilisateur
     document.querySelectorAll("#brasBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+    bouton.classList.add("active");
     document.getElementById("liveSearchInput").value = "";
     document.getElementById("liveSearchResults").style.display = "none";
     document.getElementById("clearSearchBtn").style.display = "none";
 
-    // Villes
+    // Affichage des villes
     document.getElementById("titleVille").classList.remove("hidden");
-    const villes = [...new Set(excelData.filter(r => r.BRAS === bras).map(r => r.Ville))].filter(v => v).sort();
-    const cityContainer = document.getElementById("cityBtnContainer");
+    const villes = [...new Set(donneesExcel.filter(r => r.BRAS === bras).map(r => r.Ville))].filter(v => v).sort();
+    const conteneurVille = document.getElementById("cityBtnContainer");
 
-    // Temporarily remove voiceBtn if it's in the container to avoid clearing it
-    const voiceBtn = document.getElementById('voiceBtn');
-    let voiceBtnWasInContainer = false;
-    if (voiceBtn && cityContainer.contains(voiceBtn)) {
-        cityContainer.removeChild(voiceBtn);
-        voiceBtnWasInContainer = true;
+    // Retirer temporairement le bouton vocal s'il est dans le conteneur pour éviter de l'effacer
+    const boutonVocal = document.getElementById('voiceBtn');
+    let boutonVocalEtaitDansConteneur = false;
+    if (boutonVocal && conteneurVille.contains(boutonVocal)) {
+        conteneurVille.removeChild(boutonVocal);
+        boutonVocalEtaitDansConteneur = true;
     }
 
-    cityContainer.innerHTML = "";
-    villes.forEach((v, index) => {
-        const vBtn = document.createElement("button");
-        vBtn.className = "city-btn city-appear";
-        vBtn.style.animationDelay = (index * 0.03) + "s";
-        vBtn.textContent = v;
-        vBtn.onclick = () => {
-            if (selectedCity === v) {
-                selectedCity = "";
+    conteneurVille.innerHTML = "";
+    villes.forEach((ville, index) => {
+        const boutonVille = document.createElement("button");
+        boutonVille.className = "city-btn city-appear";
+        boutonVille.style.animationDelay = (index * 0.03) + "s";
+        boutonVille.textContent = ville;
+        boutonVille.onclick = () => {
+            if (villeSelectionnee === ville) {
+                villeSelectionnee = "";
                 document.querySelectorAll("#cityBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
             } else {
-                selectedCity = v;
+                villeSelectionnee = ville;
                 document.querySelectorAll("#cityBtnContainer .city-btn").forEach(b => b.classList.remove("active"));
-                vBtn.classList.add("active");
+                boutonVille.classList.add("active");
             }
-            vibrateOnClick();
+            vibrerAuClic();
         };
-        cityContainer.appendChild(vBtn);
+        conteneurVille.appendChild(boutonVille);
     });
 
-    // If voiceBtn was in the container, append it back with city button styling
-    if (voiceBtnWasInContainer) {
-        voiceBtn.className = 'city-btn city-appear';
-        cityContainer.appendChild(voiceBtn);
+    // Si le bouton vocal était dans le conteneur, le remettre avec le style des boutons de ville
+    if (boutonVocalEtaitDansConteneur) {
+        boutonVocal.className = 'city-btn city-appear';
+        conteneurVille.appendChild(boutonVocal);
     }
 
-    // Update UI based on selection
-    checkDataWarning();
+    // Mise à jour de l'interface basée sur la sélection
+    verifierAvertissementDonnees();
 }
 
-// Recherche Live
-document.getElementById("liveSearchInput").addEventListener("input", function() {
-    const val = normalize(this.value.trim());
-    const resDiv = document.getElementById("liveSearchResults");
-    document.getElementById("clearSearchBtn").style.display = val ? "flex" : "none";
+// =====================================
+// FONCTIONNALITÉS DE RECHERCHE
+// =====================================
 
-    if (val.length < 2 || !selectedBras) {
-        resDiv.innerHTML = ""; resDiv.style.display = "none"; return;
+/**
+ * Gestionnaire d'événement pour la recherche en temps réel
+ */
+document.getElementById("liveSearchInput").addEventListener("input", function() {
+    const valeurRecherche = normaliserTexte(this.value.trim());
+    const divResultats = document.getElementById("liveSearchResults");
+    document.getElementById("clearSearchBtn").style.display = valeurRecherche ? "flex" : "none";
+
+    if (valeurRecherche.length < 2 || !brasSelectionne) {
+        divResultats.innerHTML = "";
+        divResultats.style.display = "none";
+        return;
     }
 
-    // First, try to find matches in TypeRecherche "1"
-    let filtered = excelData.filter(r =>
-        r.BRAS === selectedBras &&
-        (!selectedCity || r.Ville === selectedCity) &&
+    // Essayer d'abord de trouver des correspondances dans TypeRecherche "1"
+    let resultatsFiltres = donneesExcel.filter(r =>
+        r.BRAS === brasSelectionne &&
+        (!villeSelectionnee || r.Ville === villeSelectionnee) &&
         r.TypeRecherche === "1" &&
-        normalize(r.Adresse).includes(val)
+        normaliserTexte(r.Adresse).includes(valeurRecherche)
     );
 
-    let isFallback = false;
-    // If no results in "1", show all from "2" that match city and BRAS
-    if (filtered.length === 0) {
-        filtered = excelData.filter(r =>
-            r.BRAS === selectedBras &&
-            (!selectedCity || r.Ville === selectedCity) &&
+    let estAlternatif = false;
+    // Si aucun résultat dans "1", afficher tous les résultats de "2" qui correspondent à la ville et au BRAS
+    if (resultatsFiltres.length === 0) {
+        resultatsFiltres = donneesExcel.filter(r =>
+            r.BRAS === brasSelectionne &&
+            (!villeSelectionnee || r.Ville === villeSelectionnee) &&
             r.TypeRecherche === "2"
         );
-        isFallback = true;
+        estAlternatif = true;
     }
 
-    if (filtered.length > 0) {
-        resDiv.style.display = "block";
+    if (resultatsFiltres.length > 0) {
+        divResultats.style.display = "block";
         let html = `<table class="popup-table"><tbody>`;
-        if (isFallback) {
+        if (estAlternatif) {
             html = `<p style="color: #ff6b6b; font-weight: bold; text-align: center; margin-bottom: 5px;">Aucun résultat trouvé. Résultats alternatifs :</p>` + html;
         }
-        filtered.forEach(r => {
+        resultatsFiltres.forEach(r => {
             html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`;
         });
-        resDiv.innerHTML = html + "</tbody></table>";
+        divResultats.innerHTML = html + "</tbody></table>";
     } else {
-        resDiv.style.display = "none";
+        divResultats.style.display = "none";
     }
 });
 
+/**
+ * Gestionnaire d'événement pour effacer la recherche
+ */
 document.getElementById("clearSearchBtn").onclick = function() {
     document.getElementById("liveSearchInput").value = "";
     document.getElementById("liveSearchResults").style.display = "none";
     this.style.display = "none";
 };
 
-// Reconnaissance Vocale
-if (recognition) {
+// =====================================
+// RECONNAISSANCE VOCALE
+// =====================================
+
+/**
+ * Initialise les gestionnaires d'événements pour la reconnaissance vocale
+ */
+if (instanceReconnaissance) {
     document.getElementById("voiceBtn").onclick = () => {
-        if (!selectedBras) { alert("Sélectionnez d'abord un BRAS"); return; }
-        vibrateOnClick();
-        playBeep();
+        if (!brasSelectionne) {
+            alert("Sélectionnez d'abord un BRAS");
+            return;
+        }
+        vibrerAuClic();
+        jouerBip();
         try {
-            recognition.start();
+            instanceReconnaissance.start();
             document.getElementById("voiceBtn").classList.add("listening");
             document.getElementById("statusText").textContent = "J'écoute...";
-        } catch (err) {
-            console.error('Erreur démarrage reconnaissance vocale:', err);
-            alert('Impossible de démarrage la reconnaissance vocale. Vérifiez les permissions du micro et le contexte (HTTPS).');
+        } catch (erreur) {
+            console.error('Erreur démarrage reconnaissance vocale:', erreur);
+            alert('Impossible de démarrer la reconnaissance vocale. Vérifiez les permissions du micro et le contexte (HTTPS).');
             document.getElementById("statusText").textContent = "Erreur micro";
         }
     };
 
-    recognition.onresult = (e) => {
-        const transcript = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript) ? e.results[0][0].transcript.toLowerCase() : '';
-        lastRecognized = transcript ? transcript.split(" ").pop() : '' ; // Prend le dernier mot
-        document.getElementById("voiceConfirmText").textContent = `Chercher "${lastRecognized}" ?`;
-        const box = document.getElementById("voicePopupOverlay");
-        if (box) { box.classList.remove('hidden'); }
-        // Keep the voice button in its container, do not move it
+    instanceReconnaissance.onresult = (evenement) => {
+        const transcription = (evenement.results && evenement.results[0] && evenement.results[0][0] && evenement.results[0][0].transcript) ?
+            evenement.results[0][0].transcript.toLowerCase() : '';
+        dernierReconnu = transcription ? transcription.split(" ").pop() : ''; // Prend le dernier mot
+        document.getElementById("voiceConfirmText").textContent = `Chercher "${dernierReconnu}" ?`;
+        const popup = document.getElementById("voicePopupOverlay");
+        if (popup) { popup.classList.remove('hidden'); }
+        // Garder le bouton vocal dans son conteneur, ne pas le déplacer
     };
 
-    recognition.onerror = (evt) => {
-        console.error('Speech recognition error', evt);
+    instanceReconnaissance.onerror = (evenement) => {
+        console.error('Erreur reconnaissance vocale', evenement);
         document.getElementById("voiceBtn").classList.remove("listening");
         document.getElementById("statusText").textContent = "Erreur reconnaissance";
-        alert('Erreur reconnaissance vocale : ' + (evt.error || 'inconnue'));
+        alert('Erreur reconnaissance vocale : ' + (evenement.error || 'inconnue'));
     };
 
-    recognition.onnomatch = () => {
+    instanceReconnaissance.onnomatch = () => {
         document.getElementById("voiceBtn").classList.remove("listening");
         document.getElementById("statusText").textContent = "Aucun résultat";
     };
 
-    recognition.onend = () => {
+    instanceReconnaissance.onend = () => {
         document.getElementById("voiceBtn").classList.remove("listening");
         document.getElementById("statusText").textContent = "Prêt.";
     };
 }
 
+/**
+ * Gestionnaire d'événement pour confirmer la recherche vocale
+ */
 document.getElementById("confirmBtn").onclick = () => {
-    const val = normalize(lastRecognized);
+    const valeurRecherche = normaliserTexte(dernierReconnu);
 
-    // First, try to find matches in TypeRecherche "1"
-    let filtered = excelData.filter(r =>
-        r.BRAS === selectedBras &&
-        (!selectedCity || r.Ville === selectedCity) &&
+    // Essayer d'abord de trouver des correspondances dans TypeRecherche "1"
+    let resultatsFiltres = donneesExcel.filter(r =>
+        r.BRAS === brasSelectionne &&
+        (!villeSelectionnee || r.Ville === villeSelectionnee) &&
         r.TypeRecherche === "1" &&
-        normalize(r.Adresse).includes(val)
+        normaliserTexte(r.Adresse).includes(valeurRecherche)
     );
 
-    let isFallback = false;
-    // If no results in "1", show all from "2" that match city and BRAS
-    if (filtered.length === 0) {
-        filtered = excelData.filter(r =>
-            r.BRAS === selectedBras &&
-            (!selectedCity || r.Ville === selectedCity) &&
+    let estAlternatif = false;
+    // Si aucun résultat dans "1", afficher tous les résultats de "2" qui correspondent à la ville et au BRAS
+    if (resultatsFiltres.length === 0) {
+        resultatsFiltres = donneesExcel.filter(r =>
+            r.BRAS === brasSelectionne &&
+            (!villeSelectionnee || r.Ville === villeSelectionnee) &&
             r.TypeRecherche === "2"
         );
-        isFallback = true;
+        estAlternatif = true;
     }
 
-    if (filtered.length > 0) {
+    if (resultatsFiltres.length > 0) {
         let html = `<table class="popup-table"><tbody>`;
-        filtered.forEach(r => {
+        resultatsFiltres.forEach(r => {
             html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`;
         });
         document.getElementById("popupContent").innerHTML = html + "</tbody></table>";
-        if (isFallback) {
-        document.getElementById("popupTitle").innerHTML = "Résultats<br><span style='color: #ff6b6b; margin-top: 10px; display: block; font-size: 0.8em;'>Aucun résultat trouvé. Résultats alternatifs :</span>";
+        if (estAlternatif) {
+            document.getElementById("popupTitle").innerHTML = "Résultats<br><span style='color: #ff6b6b; margin-top: 10px; display: block; font-size: 0.8em;'>Aucun résultat trouvé. Résultats alternatifs :</span>";
         } else {
             document.getElementById("popupTitle").innerHTML = "Résultats";
         }
         document.getElementById("popupOverlay").classList.remove("hidden");
     } else {
-        alert("Aucun résultat pour : " + lastRecognized);
+        alert("Aucun résultat pour : " + dernierReconnu);
     }
-    const vBox = document.getElementById("voicePopupOverlay");
-    if (vBox) {
-        vBox.classList.add('hidden');
-        // Move voice button back to voice-zone
-        const voiceBtn = document.getElementById('voiceBtn');
-        const voiceZone = document.querySelector('.voice-zone');
-        if (voiceBtn && voiceZone && !voiceZone.contains(voiceBtn)) {
-            voiceZone.appendChild(voiceBtn);
+
+    const popupVocale = document.getElementById("voicePopupOverlay");
+    if (popupVocale) {
+        popupVocale.classList.add('hidden');
+        // Remettre le bouton vocal dans la zone vocale
+        const boutonVocal = document.getElementById('voiceBtn');
+        const zoneVocale = document.querySelector('.voice-zone');
+        if (boutonVocal && zoneVocale && !zoneVocale.contains(boutonVocal)) {
+            zoneVocale.appendChild(boutonVocal);
         }
     }
 };
 
-// Interface Modals & Panels
+// =====================================
+// GESTION DES MODALES ET PANNEAUX
+// =====================================
+
+/**
+ * Gestionnaire d'événement pour réessayer la reconnaissance vocale
+ */
 document.getElementById("retryBtn").onclick = () => {
-    const vBox2 = document.getElementById("voicePopupOverlay");
-    if (vBox2) { vBox2.classList.add('hidden'); }
+    const popupVocale2 = document.getElementById("voicePopupOverlay");
+    if (popupVocale2) { popupVocale2.classList.add('hidden'); }
     document.getElementById("voiceBtn").click();
 };
 
+/**
+ * Gestionnaire d'événement pour annuler la reconnaissance vocale
+ */
 document.getElementById("cancelBtn").onclick = () => {
-    const vBox3 = document.getElementById("voicePopupOverlay");
-    if (vBox3) { vBox3.classList.add('hidden'); }
+    const popupVocale3 = document.getElementById("voicePopupOverlay");
+    if (popupVocale3) { popupVocale3.classList.add('hidden'); }
     document.getElementById("statusText").textContent = "Annulé.";
 };
 
-document.getElementById("popupClose").onclick = () => { 
-    document.getElementById("popupOverlay").classList.add("hidden"); 
+/**
+ * Gestionnaire d'événement pour fermer la popup de résultats
+ */
+document.getElementById("popupClose").onclick = () => {
+    document.getElementById("popupOverlay").classList.add("hidden");
 };
 
+/**
+ * Gestionnaire d'événement pour basculer entre les modes (utilisateur/admin)
+ */
 document.getElementById("modeToggle").onclick = function() {
-    const admin = document.getElementById("adminPanel"), user = document.getElementById("userPanel");
-    const adminHidden = admin.classList.contains('hidden');
-    if (adminHidden) {
-        admin.classList.remove('hidden'); admin.style.display = 'block';
-        user.classList.add('hidden'); user.style.display = 'none';
+    const panneauAdmin = document.getElementById("adminPanel"), panneauUtilisateur = document.getElementById("userPanel");
+    const panneauAdminCache = panneauAdmin.classList.contains('hidden');
+    if (panneauAdminCache) {
+        panneauAdmin.classList.remove('hidden'); panneauAdmin.style.display = 'block';
+        panneauUtilisateur.classList.add('hidden'); panneauUtilisateur.style.display = 'none';
         this.textContent = 'Accueil';
     } else {
-        admin.classList.add('hidden'); admin.style.display = 'none';
-        user.classList.remove('hidden'); user.style.display = 'block';
-        if (!selectedBras) {
+        panneauAdmin.classList.add('hidden'); panneauAdmin.style.display = 'none';
+        panneauUtilisateur.classList.remove('hidden'); panneauUtilisateur.style.display = 'block';
+        if (!brasSelectionne) {
             document.getElementById("titleVille").classList.add("hidden");
         } else {
             document.getElementById("titleVille").classList.remove("hidden");
         }
-        // Move microphone button back to voice-zone if a BRAS is selected
-        if (selectedBras) {
-            const voiceBtn = document.getElementById('voiceBtn');
-            const voiceZone = document.querySelector('.voice-zone');
-            if (voiceBtn && voiceZone && !voiceZone.contains(voiceBtn)) {
-                voiceBtn.className = 'voice-btn';
-                voiceZone.appendChild(voiceBtn);
-                voiceZone.style.display = "flex";
-                positionVoiceZone();
+        // Remettre le bouton micro dans la zone vocale si un BRAS est sélectionné
+        if (brasSelectionne) {
+            const boutonVocal = document.getElementById('voiceBtn');
+            const zoneVocale = document.querySelector('.voice-zone');
+            if (boutonVocal && zoneVocale && !zoneVocale.contains(boutonVocal)) {
+                boutonVocal.className = 'voice-btn';
+                zoneVocale.appendChild(boutonVocal);
+                zoneVocale.style.display = "flex";
+                positionnerZoneVocale();
             }
         }
         this.textContent = 'Paramètres';
     }
 };
 
+/**
+ * Gestionnaire d'événement pour effacer le stockage local
+ */
 document.getElementById("clearStorageBtn").onclick = () => {
     if(confirm("Voulez-vous vraiment effacer toutes les données chargées ?")) {
         localStorage.clear(); location.reload();
     }
 };
 
-function parseAddressFromText(text) {
-    const lines = text.split('\n').map(line => line.trim()).filter(line => line);
-    let city = '';
-    let street = '';
+/**
+ * Analyse le texte extrait d'une image pour extraire l'adresse
+ * @param {string} texte - Le texte reconnu par l'OCR
+ * @returns {Object} Objet contenant la ville, la rue et le dernier mot de la rue
+ */
+function analyserAdresseDepuisTexte(texte) {
+    const lignes = texte.split('\n').map(ligne => ligne.trim()).filter(ligne => ligne);
+    let ville = '';
+    let rue = '';
 
     // Améliorer la regex pour les codes postaux (5 chiffres)
-    const postalCodeRegex = /\b(\d{5})\b/;
+    const regexCodePostal = /\b(\d{5})\b/;
     // Étendre la regex pour les types de rues (ajouter plus de variations)
-    const streetRegex = /\b(rue|boulevard|bd|avenue|av|place|pl|chemin|impasse|allee|route|rt|voie|square|sq|cours|imp|passage|pass|quai|pont|carrefour|car|résidence|res|lotissement|lot|zone|zn|parc|prk)\b/i;
+    const regexRue = /\b(rue|boulevard|bd|avenue|av|place|pl|chemin|impasse|allee|route|rt|voie|square|sq|cours|imp|passage|pass|quai|pont|carrefour|car|résidence|res|lotissement|lot|zone|zn|parc|prk)\b/i;
 
     // Extraction de la ville : chercher après le code postal
-    for (const line of lines) {
-        const match = line.match(postalCodeRegex);
-        if (match) {
+    for (const ligne of lignes) {
+        const correspondance = ligne.match(regexCodePostal);
+        if (correspondance) {
             // Prendre le texte après le code postal, nettoyer et prendre les premiers mots
-            const afterCode = line.substring(match.index + match[0].length).replace(/[^a-zA-Z\s-]/g, '').trim();
-            const words = afterCode.split(/\s+/).filter(w => w.length > 1); // Filtrer les mots courts
-            city = words.slice(0, 3).join(' '); // Prendre jusqu'à 3 mots pour la ville
-            if (city) break;
+            const apresCode = ligne.substring(correspondance.index + correspondance[0].length).replace(/[^a-zA-Z\s-]/g, '').trim();
+            const mots = apresCode.split(/\s+/).filter(m => m.length > 1); // Filtrer les mots courts
+            ville = mots.slice(0, 3).join(' '); // Prendre jusqu'à 3 mots pour la ville
+            if (ville) break;
         }
     }
 
     // Extraction de la rue : chercher les lignes avec des indicateurs de rue
-    for (const line of lines) {
-        if (streetRegex.test(line)) {
+    for (const ligne of lignes) {
+        if (regexRue.test(ligne)) {
             // Nettoyer la ligne : enlever les chiffres au début, les types de rue, et les caractères spéciaux
-            let cleaned = line.replace(/^\d+\s*/, ''); // Enlever les numéros au début
-            cleaned = cleaned.replace(streetRegex, '').replace(/[,.-]/g, '').trim();
+            let nettoye = ligne.replace(/^\d+\s*/, ''); // Enlever les numéros au début
+            nettoye = nettoye.replace(regexRue, '').replace(/[,.-]/g, '').trim();
             // Enlever les mots très courts et les mots communs
-            const words = cleaned.split(/\s+/).filter(w => w.length > 2 && !/\b(le|la|les|du|de|des|et|à|a|sur|chez|pour|avec)\b/i.test(w));
-            street = words.join(' ');
-            if (street) break;
+            const mots = nettoye.split(/\s+/).filter(m => m.length > 2 && !/\b(le|la|les|du|de|des|et|à|a|sur|chez|pour|avec)\b/i.test(m));
+            rue = mots.join(' ');
+            if (rue) break;
         }
     }
 
     // Si pas de rue trouvée, essayer de trouver une ligne qui ressemble à une adresse (contient des chiffres et des lettres)
-    if (!street) {
-        for (const line of lines) {
-            if (/\d/.test(line) && /[a-zA-Z]/.test(line) && !postalCodeRegex.test(line)) {
-                let cleaned = line.replace(/^\d+\s*/, '').replace(/[,.-]/g, '').trim();
-                const words = cleaned.split(/\s+/).filter(w => w.length > 2);
-                street = words.join(' ');
-                if (street) break;
+    if (!rue) {
+        for (const ligne of lignes) {
+            if (/\d/.test(ligne) && /[a-zA-Z]/.test(ligne) && !regexCodePostal.test(ligne)) {
+                let nettoye = ligne.replace(/^\d+\s*/, '').replace(/[,.-]/g, '').trim();
+                const mots = nettoye.split(/\s+/).filter(m => m.length > 2);
+                rue = mots.join(' ');
+                if (rue) break;
             }
         }
     }
 
     // Extraire le dernier mot significatif de la rue
-    const streetWords = street.split(/\s+/).filter(w => w.length > 2 && !/\b(le|la|les|du|de|des|et|à|a|sur|chez|pour|avec)\b/i.test(w));
-    const lastStreetWord = streetWords.length > 0 ? streetWords[streetWords.length - 1] : '';
+    const motsRue = rue.split(/\s+/).filter(m => m.length > 2 && !/\b(le|la|les|du|de|des|et|à|a|sur|chez|pour|avec)\b/i.test(m));
+    const dernierMotRue = motsRue.length > 0 ? motsRue[motsRue.length - 1] : '';
 
     return {
-        city: city,
-        street: street,
-        lastStreetWord: lastStreetWord
+        ville: ville,
+        rue: rue,
+        dernierMotRue: dernierMotRue
     };
 }
 
-function searchFromOcr(parsedAddress) {
-    const searchTerm = parsedAddress.lastStreetWord || parsedAddress.street || parsedAddress.city;
-    if (!searchTerm) {
+/**
+ * Effectue une recherche basée sur l'adresse analysée depuis l'OCR
+ * @param {Object} adresseAnalysée - L'objet contenant l'adresse analysée
+ */
+function rechercherDepuisOCR(adresseAnalysée) {
+    const termeRecherche = adresseAnalysée.dernierMotRue || adresseAnalysée.rue || adresseAnalysée.ville;
+    if (!termeRecherche) {
         alert("Aucun terme de recherche valide n'a pu être extrait de l'image.");
         return;
     }
 
-    const val = normalize(searchTerm);
-    let filtered = excelData.filter(r =>
-        r.BRAS === selectedBras &&
-        (!selectedCity || r.Ville === selectedCity) &&
-        normalize(r.Adresse).includes(val)
+    const valeurNormalisee = normaliserTexte(termeRecherche);
+    let resultatsFiltres = donneesExcel.filter(r =>
+        r.BRAS === brasSelectionne &&
+        (!villeSelectionnee || r.Ville === villeSelectionnee) &&
+        normaliserTexte(r.Adresse).includes(valeurNormalisee)
     );
 
-    if (parsedAddress.city) {
-        const cityVal = normalize(parsedAddress.city);
-        const moreFiltered = filtered.filter(r => normalize(r.Ville).includes(cityVal));
-        if (moreFiltered.length > 0) {
-            filtered = moreFiltered;
+    if (adresseAnalysée.ville) {
+        const valeurVille = normaliserTexte(adresseAnalysée.ville);
+        const resultatsPlusFiltres = resultatsFiltres.filter(r => normaliserTexte(r.Ville).includes(valeurVille));
+        if (resultatsPlusFiltres.length > 0) {
+            resultatsFiltres = resultatsPlusFiltres;
         }
     }
 
-    if (filtered.length > 0) {
+    if (resultatsFiltres.length > 0) {
         let html = `<table class="popup-table"><tbody>`;
-        filtered.forEach(r => {
+        resultatsFiltres.forEach(r => {
             html += `<tr><td>${r.Ville}</td><td>${r.Adresse}</td><td>${r.Numero}</td></tr>`;
         });
         document.getElementById("popupContent").innerHTML = html + "</tbody></table>";
         document.getElementById("popupTitle").textContent = "Résultats de la recherche image";
         document.getElementById("popupOverlay").classList.remove("hidden");
     } else {
-        alert("Aucun résultat pour : " + searchTerm);
+        alert("Aucun résultat pour : " + termeRecherche);
     }
 
-    cameraPopup.classList.add("hidden");
-    stopCamera();
+    popupCamera.classList.add("hidden");
+    arreterCamera();
 }
 
-// Camera Popup Logic
-const cameraPopup = document.getElementById("cameraPopupOverlay");
-const cameraButton = document.getElementById("cameraBtn");
-const cameraPopupClose = document.getElementById("cameraPopupClose");
-const videoFeed = document.getElementById("cameraFeed");
-const cameraStatus = document.getElementById("cameraStatus");
+// =====================================
+// CAMÉRA ET OCR
+// =====================================
 
-// Scan configuration optimized for both letters and labels
-const scanConfig = { top: 0.25, left: 0.05, width: 0.9, height: 0.5 }; // Large area covering both document types
+/**
+ * Popup de la caméra
+ * @type {HTMLElement}
+ */
+const popupCamera = document.getElementById("cameraPopupOverlay");
 
-async function startCamera() {
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
+/**
+ * Bouton pour ouvrir la caméra
+ * @type {HTMLElement}
+ */
+const boutonCamera = document.getElementById("cameraBtn");
+
+/**
+ * Bouton pour fermer la popup caméra
+ * @type {HTMLElement}
+ */
+const fermeturePopupCamera = document.getElementById("cameraPopupClose");
+
+/**
+ * Flux vidéo de la caméra
+ * @type {HTMLVideoElement}
+ */
+const fluxVideo = document.getElementById("cameraFeed");
+
+/**
+ * Statut de la caméra
+ * @type {HTMLElement}
+ */
+const statutCamera = document.getElementById("cameraStatus");
+
+/**
+ * Configuration de numérisation optimisée pour les lettres et étiquettes
+ * @type {Object}
+ */
+const configNumerisation = { haut: 0.25, gauche: 0.05, largeur: 0.9, hauteur: 0.5 }; // Grande zone couvrant les deux types de documents
+
+/**
+ * Démarre la caméra et initialise le flux vidéo
+ */
+async function demarrerCamera() {
+    if (fluxCamera) {
+        fluxCamera.getTracks().forEach(track => track.stop());
     }
-    if(cameraStatus) cameraStatus.textContent = "Démarrage de la caméra...";
+    if(statutCamera) statutCamera.textContent = "Démarrage de la caméra...";
     try {
-        const constraints = { 
-            video: { 
-                facingMode: 'environment' // Prioritize back camera
-            } 
+        const contraintes = {
+            video: {
+                facingMode: 'environment' // Prioriser la caméra arrière
+            }
         };
-        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-        videoFeed.srcObject = cameraStream;
-        videoFeed.onloadedmetadata = () => {
-            if(cameraStatus) cameraStatus.textContent = "Prêt à capturer.";
+        fluxCamera = await navigator.mediaDevices.getUserMedia(contraintes);
+        fluxVideo.srcObject = fluxCamera;
+        fluxVideo.onloadedmetadata = () => {
+            if(statutCamera) statutCamera.textContent = "Prêt à capturer.";
         };
-    } catch (err) {
-        console.error("Erreur caméra:", err);
-        if(cameraStatus) cameraStatus.textContent = "Erreur caméra. Vérifiez les permissions.";
-        // If environment camera fails, try default
+    } catch (erreur) {
+        console.error("Erreur caméra:", erreur);
+        if(statutCamera) statutCamera.textContent = "Erreur caméra. Vérifiez les permissions.";
+        // Si la caméra arrière échoue, essayer la caméra par défaut
         try {
-            const anyCameraConstraints = { video: true };
-            cameraStream = await navigator.mediaDevices.getUserMedia(anyCameraConstraints);
-            videoFeed.srcObject = cameraStream;
-            videoFeed.onloadedmetadata = () => {
-                if(cameraStatus) cameraStatus.textContent = "Prêt à capturer.";
+            const contraintesCameraParDefaut = { video: true };
+            fluxCamera = await navigator.mediaDevices.getUserMedia(contraintesCameraParDefaut);
+            fluxVideo.srcObject = fluxCamera;
+            fluxVideo.onloadedmetadata = () => {
+                if(statutCamera) statutCamera.textContent = "Prêt à capturer.";
             };
         } catch (e) {
             console.error("Erreur caméra (fallback):", e);
-            if(cameraStatus) cameraStatus.textContent = "Impossible d'accéder à la caméra.";
+            if(statutCamera) statutCamera.textContent = "Impossible d'accéder à la caméra.";
         }
     }
 }
 
-function stopCamera() {
-    if (cameraStream) {
-        cameraStream.getTracks().forEach(track => track.stop());
-        cameraStream = null;
-        videoFeed.srcObject = null;
+/**
+ * Arrête la caméra et nettoie le flux
+ */
+function arreterCamera() {
+    if (fluxCamera) {
+        fluxCamera.getTracks().forEach(track => track.stop());
+        fluxCamera = null;
+        fluxVideo.srcObject = null;
     }
 }
 
-function updateScanRegion() {
-    const scanRegion = document.getElementById('scanRegion');
-    if (!scanRegion || !videoFeed) return;
+/**
+ * Met à jour la région de numérisation sur la vidéo
+ */
+function mettreAJourRegionNumerisation() {
+    const regionNumerisation = document.getElementById('scanRegion');
+    if (!regionNumerisation || !fluxVideo) return;
 
-    scanRegion.style.top = (scanConfig.top * 100) + '%';
-    scanRegion.style.left = (scanConfig.left * 100) + '%';
-    scanRegion.style.width = (scanConfig.width * 100) + '%';
-    scanRegion.style.height = (scanConfig.height * 100) + '%';
+    regionNumerisation.style.top = (configNumerisation.haut * 100) + '%';
+    regionNumerisation.style.left = (configNumerisation.gauche * 100) + '%';
+    regionNumerisation.style.width = (configNumerisation.largeur * 100) + '%';
+    regionNumerisation.style.height = (configNumerisation.hauteur * 100) + '%';
 }
 
-if (cameraButton && cameraPopup && cameraPopupClose) {
-    cameraButton.addEventListener("click", () => {
-        cameraPopup.classList.remove("hidden");
-        startCamera();
-        updateScanRegion();
+if (boutonCamera && popupCamera && fermeturePopupCamera) {
+    boutonCamera.addEventListener("click", () => {
+        popupCamera.classList.remove("hidden");
+        demarrerCamera();
+        mettreAJourRegionNumerisation();
     });
 
-    cameraPopupClose.addEventListener("click", () => {
-        cameraPopup.classList.add("hidden");
-        stopCamera();
+    fermeturePopupCamera.addEventListener("click", () => {
+        popupCamera.classList.add("hidden");
+        arreterCamera();
     });
 
+    const boutonCapturer = document.getElementById("captureBtn");
+    const toileCapture = document.getElementById("captureCanvas");
 
-
-    const captureBtn = document.getElementById("captureBtn");
-    const captureCanvas = document.getElementById("captureCanvas");
-
-    if (captureBtn && captureCanvas) {
-        captureBtn.addEventListener('click', async () => {
-            if (!cameraStream) {
-                if(cameraStatus) cameraStatus.textContent = "Aucun flux caméra actif.";
+    if (boutonCapturer && toileCapture) {
+        boutonCapturer.addEventListener('click', async () => {
+            if (!fluxCamera) {
+                if(statutCamera) statutCamera.textContent = "Aucun flux caméra actif.";
                 return;
             }
 
-            // --- Capture image to canvas ---
-            const context = captureCanvas.getContext('2d');
-            captureCanvas.width = videoFeed.videoWidth;
-            captureCanvas.height = videoFeed.videoHeight;
-            context.drawImage(videoFeed, 0, 0, videoFeed.videoWidth, videoFeed.videoHeight);
-            
-            // --- OCR with Tesseract ---
-            if(cameraStatus) cameraStatus.textContent = "Analyse de l'image...";
-            
+            // --- Capture de l'image vers le canvas ---
+            const contexte = toileCapture.getContext('2d');
+            toileCapture.width = fluxVideo.videoWidth;
+            toileCapture.height = fluxVideo.videoHeight;
+            contexte.drawImage(fluxVideo, 0, 0, fluxVideo.videoWidth, fluxVideo.videoHeight);
+
+            // --- OCR avec Tesseract ---
+            if(statutCamera) statutCamera.textContent = "Analyse de l'image...";
+
             try {
                 const rectangle = {
-                    top: videoFeed.videoHeight * scanConfig.top,
-                    left: videoFeed.videoWidth * scanConfig.left,
-                    width: videoFeed.videoWidth * scanConfig.width,
-                    height: videoFeed.videoHeight * scanConfig.height
+                    top: fluxVideo.videoHeight * configNumerisation.haut,
+                    left: fluxVideo.videoWidth * configNumerisation.gauche,
+                    width: fluxVideo.videoWidth * configNumerisation.largeur,
+                    height: fluxVideo.videoHeight * configNumerisation.hauteur
                 };
 
-                const result = await Tesseract.recognize(
-                    captureCanvas,
-                    'fra', // Language is French
-                    { 
+                const resultat = await Tesseract.recognize(
+                    toileCapture,
+                    'fra', // Langue française
+                    {
                         logger: m => {
                             console.log(m);
-                            if(cameraStatus && m.status === 'recognizing text') {
-                                cameraStatus.textContent = `Analyse... ${Math.round(m.progress * 100)}%`;
+                            if(statutCamera && m.status === 'recognizing text') {
+                                statutCamera.textContent = `Analyse... ${Math.round(m.progress * 100)}%`;
                             }
                         },
                         rectangle: rectangle
                     }
                 );
-                
-                const recognizedText = result.data.text;
-                console.log('Texte reconnu:', recognizedText);
 
-                const parsedAddress = parseAddressFromText(recognizedText);
-                console.log('Adresse analysée:', parsedAddress);
+                const texteReconnu = resultat.data.text;
+                console.log('Texte reconnu:', texteReconnu);
 
-                searchFromOcr(parsedAddress);
-                
-            } catch (err) {
-                console.error("Erreur OCR:", err);
-                if(cameraStatus) cameraStatus.textContent = "Erreur lors de l'analyse.";
+                const adresseAnalysée = analyserAdresseDepuisTexte(texteReconnu);
+                console.log('Adresse analysée:', adresseAnalysée);
+
+                rechercherDepuisOCR(adresseAnalysée);
+
+            } catch (erreur) {
+                console.error("Erreur OCR:", erreur);
+                if(statutCamera) statutCamera.textContent = "Erreur lors de l'analyse.";
             }
         });
     }
 }
 
-function positionVoiceZone() {
-    const voiceZone = document.querySelector('.voice-zone');
-    const footer = document.querySelector('.app-footer');
-    if (!voiceZone || !footer) return;
+/**
+ * Positionne la zone vocale de manière fixe en bas de l'écran, au-dessus du pied de page
+ */
+function positionnerZoneVocale() {
+    const zoneVocale = document.querySelector('.voice-zone');
+    const piedPage = document.querySelector('.app-footer');
+    if (!zoneVocale || !piedPage) return;
 
-    const footerHeight = footer.offsetHeight;
-    const voiceZoneHeight = voiceZone.offsetHeight;
+    const hauteurPiedPage = piedPage.offsetHeight;
+    const hauteurZoneVocale = zoneVocale.offsetHeight;
 
-    // Position the voice zone fixed at the bottom, above the footer
-    voiceZone.style.position = 'fixed';
-    voiceZone.style.bottom = footerHeight + 'px';
-    voiceZone.style.left = '50%';
-    voiceZone.style.transform = 'translateX(-50%)';
-    voiceZone.style.zIndex = '10';
+    // Positionner la zone vocale de manière fixe en bas de l'écran, au-dessus du pied de page
+    zoneVocale.style.position = 'fixed';
+    zoneVocale.style.bottom = hauteurPiedPage + 'px';
+    zoneVocale.style.left = '50%';
+    zoneVocale.style.transform = 'translateX(-50%)';
+    zoneVocale.style.zIndex = '10';
 }
