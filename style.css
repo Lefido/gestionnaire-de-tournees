@@ -12,6 +12,17 @@
   --success: #00cc44;
 }
 
+:root.light-theme {
+  --bg-dark: #f0f0f0;
+  --bg-panel: #ffffff;
+  --bg-input: #e0e0e0;
+  --bg-btn: #0077ff;
+  --text-light: #333333;
+  --border: #cccccc;
+  --danger: #ff6b6b;
+  --success: #00cc44;
+}
+
 /* =====================================
    CLASSES UTILITAIRES
    ===================================== */
@@ -37,11 +48,17 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
-  background: var(--bg-dark) url('fond.png') center/cover no-repeat;
+  background: var(--bg-dark) url('assets/fond.png') center/cover no-repeat;
   color: var(--text-light);
   font-family: sans-serif;
   overflow-x: hidden;
   scroll-behavior: smooth;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+html.light-theme body {
+  background: var(--bg-dark) url('assets/fond_ligth.png') center/cover no-repeat;
+  color: #333333;
 }
 
 .app-container {
@@ -84,7 +101,7 @@ body {
   text-align: center;
   font-weight: 800;
   font-size: clamp(1rem, 4vw, 1.4rem);
-  color: #fff;
+  color: var(--text-light);
   text-transform: uppercase;
 }
 .fixed-input {
@@ -96,7 +113,7 @@ body {
   max-width: 430px;
   z-index: 101;
   background: var(--bg-input);
-  color: white;
+  color: var(--text-light);
   padding: 10px;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -123,7 +140,7 @@ body {
   text-align: center;
   font-size: 1.1rem;
   margin: 15px 0 10px;
-  color: #fff;
+  color: var(--text-light);
   display: block;
 }
 
@@ -140,11 +157,12 @@ body {
   padding: 10px 16px;
   border-radius: 8px;
   border: 1px solid var(--border);
-  background: var(--bg-input);
+  background: rgba(38, 38, 38, 0.8);
   color: white;
   cursor: pointer;
   transition: 0.2s;
   text-transform: capitalize;
+  
 }
 .city-btn.active {
   background: var(--bg-btn);
@@ -152,10 +170,20 @@ body {
   transform: scale(1.05);
 }
 
+html.light-theme .city-btn {
+  background: var(--bg-input);
+  color: #000000;
+}
+
+html.light-theme .city-btn.active {
+  background: var(--bg-btn);
+  color: white;
+}
+
 .city-appear {
   opacity: 0;
   transform: scale(0.5);
-  animation: zoomInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  animation: zoomInUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 @keyframes zoomInUp {
   0% {
@@ -164,7 +192,7 @@ body {
   }
   50% {
     opacity: 1;
-    transform: scale(1.05);
+    transform: scale(1.06);
   }
   75% {
     transform: scale(0.94);
@@ -207,7 +235,7 @@ body {
   border-radius: 10px;
   background: var(--bg-input);
   border: 2px solid var(--border);
-  color: white;
+  color: var(--text-light);
   font-size: 1.2rem;
   font-weight: bold;
   box-sizing: border-box;
@@ -334,6 +362,10 @@ body {
   color: #fff;
   font-size: 1.1rem;
 }
+
+html.light-theme .voice-confirm-msg {
+  color: black;
+}
 .voice-confirm-btns {
   display: flex;
   gap: 10px;
@@ -352,6 +384,18 @@ body {
   color: white;
   flex: 1;
   max-width: 140px;
+}
+
+html.light-theme .confirm-action-btn,
+html.light-theme .retry-action-btn,
+html.light-theme .cancel-action-btn {
+  color: black;
+}
+
+html.light-theme .voice-popup-window .confirm-action-btn,
+html.light-theme .voice-popup-window .retry-action-btn,
+html.light-theme .voice-popup-window .cancel-action-btn {
+  color: white;
 }
 .confirm-action-btn {
   background: var(--success);
@@ -387,6 +431,10 @@ body {
   animation: zoomIn 0.3s ease-out;
 }
 
+html.light-theme .voice-popup-window {
+  color: black;
+}
+
 /* POPUP RESULTATS */
 .popup-overlay {
   position: fixed;
@@ -411,6 +459,10 @@ body {
   flex-direction: column;
   align-items: center;
   max-height: 70vh;
+}
+
+html.light-theme .popup-window {
+  color: black;
 }
 .popup-window .mode-toggle {
   margin-top: auto;
@@ -450,6 +502,16 @@ body {
   font-size: 1.2rem;
 }
 
+html.light-theme .popup-table td {
+  color: black;
+  border-bottom: 1px solid #ccc;
+}
+html.light-theme .popup-table td:last-child {
+  color: #00c3ff;
+}
+
+
+
 /* PANNEAU ADMIN */
 .table-container {
   background: rgba(22, 22, 22, 0.7);
@@ -458,6 +520,9 @@ body {
   border: 1px solid var(--border);
   flex: 1;
   margin-top: 10px;
+}
+html.light-theme .table-container {
+  background: transparent;
 }
 .adminPanel {
   height: 100%;
@@ -470,22 +535,52 @@ table {
   text-transform: uppercase;
   font-size: 0.7rem;
   color: #fff;
+  table-layout: fixed;
+}
+html.light-theme table {
+  color: black;
+  background: transparent;
 }
 table caption {
   padding: 10px 0;
+  background-color: var(--border);
 }
 th {
   background: #222;
   padding: 10px;
   color: var(--bg-btn);
-  text-align: left;
+  text-align: center;
   position: sticky;
   top: 0;
   white-space: nowrap;
 }
+
+th:nth-child(1) { width: 25%; }
+th:nth-child(2) { width: 25%; }
+th:nth-child(3) { width: 35%; }
+th:nth-child(4) { width: 15%; }
+html.light-theme th {
+  background: #d3d3d3;
+  color: black;
+}
 td {
   padding: 8px;
   border-bottom: 1px solid #222;
+  width: 25%;
+  text-align: center;
+}
+td:last-child {
+  text-align: right;
+  font-weight: 800;
+  color: #00c3ff;
+  font-size: 1.2rem;
+  text-align: center;
+}
+html.light-theme td {
+  border-bottom: 1px solid #ccc;
+}
+html.light-theme td:last-child {
+  color: #00c3ff;
 }
 
 .admin-actions {
@@ -519,11 +614,31 @@ td {
 }
 
 .file-btn i {
-  margin-right: 12px;
+  margin-right: 8px;
+}
+
+#addAddressBtn {
+  width: 100%;
 }
 
 .danger-btn i {
   margin-right: 8px;
+}
+
+.file-name-display {
+  text-align: center;
+  padding: 8px 12px;
+  margin-bottom: 15px;
+  background: rgba(0, 119, 255, 0.1);
+  border: 1px solid var(--bg-btn);
+  border-radius: 8px;
+  color: var(--text-light);
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.file-name-display:empty {
+  display: none;
 }
 
 /* TOGGLE ROW */
@@ -531,24 +646,24 @@ td {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding: 10px 0;
+  margin-bottom: 8px;
+  padding: 5px 0;
   border-bottom: 1px solid var(--border);
 }
 
 .toggle-text {
-  font-size: 1rem;
-  color: white;
+  font-size: 0.9rem;
+  color: var(--text-light);
 }
 
 /* TOGGLE SWITCH */
 .toggle-label {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 44px;
+  height: 24px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: white;
   user-select: none;
 }
@@ -567,16 +682,16 @@ td {
   bottom: 0;
   background-color: #ccc;
   transition: .4s;
-  border-radius: 34px;
+  border-radius: 24px;
 }
 
 .toggle-slider:before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
   background-color: white;
   transition: .4s;
   border-radius: 50%;
@@ -587,7 +702,7 @@ input:checked + .toggle-slider {
 }
 
 input:checked + .toggle-slider:before {
-  transform: translateX(26px);
+  transform: translateX(20px);
 }
 
 /* DIVERS */
@@ -605,13 +720,17 @@ input:checked + .toggle-slider:before {
   text-align: center;
   padding: 10px;
   font-size: 0.80rem;
-  color: white;
+  color: var(--text-light);
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background: var(--bg-dark);
   z-index: 100;
+}
+
+html.light-theme .app-footer {
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* CAMERA POPUP STYLES */
@@ -653,4 +772,78 @@ input:checked + .toggle-slider:before {
     transition: all 0.3s ease;
 }
 
+/* ADDRESS POPUP STYLES */
+#addressPopupOverlay .popup-window {
+    gap: 20px;
+    padding: 25px;
+    max-height: 85vh;
+    overflow-y: auto;
+}
 
+#addressPopupOverlay .popup-title {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+}
+
+.address-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 100%;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: var(--text-light);
+}
+
+.form-input {
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: var(--bg-input);
+    border: 2px solid var(--border);
+    color: var(--text-light);
+    font-size: 1rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    border-color: var(--bg-btn);
+}
+
+.form-input::placeholder {
+    text-transform: none;
+    font-weight: normal;
+}
+
+html.light-theme .form-input {
+    color: #333;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.form-buttons .confirm-action-btn,
+.form-buttons .cancel-action-btn {
+    padding: 14px 28px;
+    font-size: 1rem;
+}
+
+tr.editing td {
+    background-color: rgba(0, 119, 255, 0.2) !important;
+    cursor: text;
+}
