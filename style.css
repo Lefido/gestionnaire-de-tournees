@@ -589,6 +589,26 @@ html.light-theme td:last-child {
   margin-bottom: 15px;
   justify-content: space-between;
 }
+
+.delete-btn {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 6px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.edit-btn {
+  background: var(--bg-btn);
+  color: white;
+  border: none;
+  padding: 6px 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
 .file-btn,
 .danger-btn,
 .mode-toggle {
@@ -612,6 +632,8 @@ html.light-theme td:last-child {
 .danger-btn {
   background: var(--danger);
 }
+
+
 
 .file-btn i {
   margin-right: 8px;
