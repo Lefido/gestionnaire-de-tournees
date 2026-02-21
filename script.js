@@ -744,6 +744,20 @@ class GestionnaireInterface {
     }
 
     rafraichirInterface() {
+        const aDonnees = this.gestionnaireDonnees.aDesDonnees();
+        
+        // Afficher/masquer le titre "Fichier importé"
+        const titreFichier = document.getElementById('importedFileTitle');
+        if (titreFichier) {
+            titreFichier.style.display = aDonnees ? 'block' : 'none';
+        }
+        
+        // Afficher/masquer le conteneur des adresses importées
+        const addressesContainer = document.getElementById('addressesCardsContainer');
+        if (addressesContainer) {
+            addressesContainer.style.display = aDonnees ? 'block' : 'none';
+        }
+        
         const cardsContent = document.getElementById('addressesCardsContent');
         if (cardsContent) {
             cardsContent.innerHTML = '';
