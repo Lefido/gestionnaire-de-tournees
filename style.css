@@ -643,6 +643,11 @@ html.light-theme td:last-child {
 
 #addAddressBtn {
   width: 100%;
+  background: var(--success);
+}
+
+#importExcelBtn {
+  background: var(--success);
 }
 
 .danger-btn i {
