@@ -132,7 +132,7 @@ html.light-theme body {
   margin: 0 auto;
   box-sizing: border-box;
   overflow: hidden;
-  height: 100vh; /* Pleine hauteur puisque l'en-tête est maintenant relative */
+  height: 100vh;
 }
 #userPanel {
   margin-top: -20px;
@@ -205,12 +205,12 @@ html.light-theme .city-btn.active {
   }
 }
 
-/* RECHERCHE (Optimisée pour clavier mobile) */
+/* RECHERCHE */
 .search-section {
   margin: 15px 0;
   width: 100%;
   scroll-margin-top: 0px;
-  padding-bottom: 0vh; /* Espace crucial pour permettre au champ de monter tout en haut */
+  padding-bottom: 0vh;
 }
 
 .search-section.focused { padding-bottom: 0; }
@@ -342,7 +342,7 @@ html.light-theme .city-btn.active {
   margin-top: 10px;
 }
 
-/* MODAL DE CONFIRMATION VOCALE (REFIXÉ) */
+/* MODAL DE CONFIRMATION VOCALE */
 .voice-confirm-modal {
   background: #222;
   border: 1px solid #444;
@@ -755,6 +755,8 @@ input:checked + .toggle-slider:before {
 
 html.light-theme .app-footer {
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  background: #f0f0f0;
+  color: #333;
 }
 
 /* CAMERA POPUP STYLES */
