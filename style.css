@@ -586,7 +586,7 @@ html.light-theme td:last-child {
 .admin-actions {
   display: flex;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 10px;
   justify-content: space-between;
 }
 
@@ -926,7 +926,8 @@ html.light-theme .bras-summary {
 .address-cards-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 5px;
+    margin-top: 5px;
     width: 100%;
 }
 
