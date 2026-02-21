@@ -744,27 +744,68 @@ class GestionnaireInterface {
     }
 
     rafraichirInterface() {
-        const corpsTableau = document.getElementById('adminTableBody');
-        if (corpsTableau) {
-            corpsTableau.innerHTML = '';
+        const cardsContent = document.getElementById('addressesCardsContent');
+        if (cardsContent) {
+            cardsContent.innerHTML = '';
+            
+            const brasGroupes = {};
             this.gestionnaireDonnees.donneesExcel.forEach((ligne, index) => {
-                const ligneTableau = document.createElement('tr');
-                ligneTableau.innerHTML = `
-                    <td>${ligne.BRAS}</td>
-                    <td>${ligne.Ville}</td>
-                    <td>${ligne.Adresse}</td>
-                    <td>${ligne.Numero}</td>
-                    <td class="actions-cell">
-                        <button class="action-btn edit-btn" onclick="gestionnaireInterface.modifierAdresse(${index})" title="Modifier">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-btn delete-btn" onclick="gestionnaireInterface.supprimerAdresse(${index})" title="Supprimer">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                corpsTableau.appendChild(ligneTableau);
+                const bras = ligne.BRAS;
+                if (!brasGroupes[bras]) {
+                    brasGroupes[bras] = [];
+                }
+                brasGroupes[bras].push({ ...ligne, index });
             });
+            
+            const brasTries = Object.keys(brasGroupes).sort();
+            
+            brasTries.forEach(bras => {
+                const brasDetails = document.createElement('details');
+                brasDetails.className = 'bras-details';
+                
+                const brasSummary = document.createElement('summary');
+                brasSummary.className = 'bras-summary';
+                brasSummary.textContent = bras.toUpperCase();
+                brasDetails.appendChild(brasSummary);
+                
+                const cardsGrid = document.createElement('div');
+                cardsGrid.className = 'address-cards-grid';
+                
+                brasGroupes[bras].forEach((item) => {
+                    const card = document.createElement('div');
+                    card.className = 'address-card';
+                    card.innerHTML = `
+                        <div class="card-field">
+                            <i class="fas fa-city"></i>
+                            <span>${item.Ville}</span>
+                        </div>
+                        <div class="card-field">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>${item.Adresse}</span>
+                        </div>
+                        <div class="card-field">
+                            <i class="fas fa-hashtag"></i>
+                            <span>${item.Numero}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="action-btn edit-btn" onclick="gestionnaireInterface.modifierAdresse(${item.index})" title="Modifier">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="gestionnaireInterface.supprimerAdresse(${item.index})" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    cardsGrid.appendChild(card);
+                });
+                
+                brasDetails.appendChild(cardsGrid);
+                cardsContent.appendChild(brasDetails);
+            });
+            
+            if (brasTries.length === 0) {
+                cardsContent.innerHTML = '<p class="no-data-msg">Aucune adresse importée</p>';
+            }
         }
 
         const affichageNomFichier = document.getElementById('fileNameDisplay');

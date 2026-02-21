@@ -869,3 +869,119 @@ tr.editing td {
     background-color: rgba(0, 119, 255, 0.2) !important;
     cursor: text;
 }
+
+/* =====================================
+   ADDRESS CARDS STYLES
+   ===================================== */
+.addresses-cards-container {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.cards-section-title {
+    text-align: center;
+    color: var(--bg-btn);
+    margin: 15px 0;
+    font-size: 1.1rem;
+}
+
+.bras-details {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.bras-summary {
+    color: var(--text-light);
+    background: var(--bg-btn);
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bras-summary::-webkit-details-marker {
+    display: none;
+}
+
+.bras-summary::before {
+    content: '\f078';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    transition: transform 0.2s;
+}
+
+.bras-details[open] .bras-summary::before {
+    transform: rotate(180deg);
+}
+
+html.light-theme .bras-summary {
+    color: white;
+}
+
+.address-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+
+.address-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+html.light-theme .address-card {
+    background: #ffffff;
+}
+
+.card-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+html.light-theme .card-field {
+    color: #333;
+}
+
+.card-field i {
+    color: var(--bg-btn);
+    width: 18px;
+    text-align: center;
+}
+
+.card-field span {
+    text-transform: capitalize;
+    flex: 1;
+    word-break: break-word;
+}
+
+.card-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.no-data-msg {
+    text-align: center;
+    color: var(--text-light);
+    padding: 20px;
+    font-style: italic;
+}
+
+html.light-theme .no-data-msg {
+    color: #666;
+}
