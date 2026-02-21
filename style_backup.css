@@ -929,7 +929,7 @@ html.light-theme .bras-summary {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 5px;
-    margin-top: 5px;
+    margin-top: 2px;
     width: 100%;
 }
 
@@ -975,6 +975,7 @@ html.light-theme .card-field {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+    /*margin-top: 0px;*/
 }
 
 .no-data-msg {
